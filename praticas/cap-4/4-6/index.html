@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Práticas 4.6 — Problemas de Concorrência</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --thread: #059669;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #d1fae5;
+            border-color: var(--thread);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background: #d1fae5;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .feedback.ok {
+            color: var(--good);
+        }
+
+        .feedback.err {
+            color: #dc2626;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        .kw {
+            color: #93c5fd;
+        }
+
+        .ty {
+            color: #fdba74;
+        }
+
+        .str {
+            color: #86efac;
+        }
+
+        .cm {
+            color: #94a3b8;
+        }
+
+        /* Problem cards */
+        .problem-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 16px;
+        }
+
+        .problem-card {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .problem-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .problem-card.deadlock {
+            border-color: #dc2626;
+        }
+
+        .problem-card.livelock {
+            border-color: #f59e0b;
+        }
+
+        .problem-card.starvation {
+            border-color: #6366f1;
+        }
+
+        .problem-card h4 {
+            margin: 0 0 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .problem-card.selected {
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.4);
+        }
+
+        /* Deadlock viz */
+        .deadlock-viz {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            padding: 20px;
+        }
+
+        .thread-box {
+            text-align: center;
+        }
+
+        .thread-icon {
+            font-size: 3rem;
+        }
+
+        .lock-arrow {
+            font-size: 1.5rem;
+            margin: 8px 0;
+        }
+
+        .lock-box {
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: bold;
+        }
+
+        .lock-box.has {
+            background: #d1fae5;
+        }
+
+        .lock-box.wants {
+            background: #fee2e2;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Práticas 4.6 — Problemas de Concorrência</h2>
+
+        <div class="tabs">
+            <button class="tab active" data-key="problemas">Problemas</button>
+            <button class="tab" data-key="deadlock">Deadlock</button>
+            <button class="tab" data-key="solucoes">Soluções</button>
+            <button class="tab" data-key="quiz">Quiz</button>
+        </div>
+
+        <!-- Problemas -->
+        <section class="panel active" data-key="problemas">
+            <div class="box">
+                <h3>Problemas Clássicos</h3>
+
+                <div class="problem-cards">
+                    <div class="problem-card deadlock selected" data-problem="deadlock">
+                        <h4><span style="color:#dc2626;">🔒</span> Deadlock</h4>
+                        <p class="note">Duas ou mais threads bloqueadas permanentemente, cada uma esperando um recurso
+                            que a outra possui.</p>
+                    </div>
+                    <div class="problem-card livelock" data-problem="livelock">
+                        <h4><span style="color:#f59e0b;">🔄</span> Livelock</h4>
+                        <p class="note">Threads continuam executando mas não fazem progresso (ficam "cedendo"
+                            indefinidamente).</p>
+                    </div>
+                    <div class="problem-card starvation" data-problem="starvation">
+                        <h4><span style="color:#6366f1;">😵</span> Starvation</h4>
+                        <p class="note">Uma thread nunca consegue acesso ao recurso porque outras sempre têm prioridade.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Deadlock -->
+        <section class="panel" data-key="deadlock">
+            <div class="box">
+                <h3>Anatomia de um Deadlock</h3>
+
+                <div class="deadlock-viz">
+                    <div class="thread-box">
+                        <div class="thread-icon">🧵</div>
+                        <div>Thread A</div>
+                        <div class="lock-arrow">⬇️ possui</div>
+                        <div class="lock-box has">Lock 1</div>
+                        <div class="lock-arrow">⬇️ quer</div>
+                        <div class="lock-box wants">Lock 2</div>
+                    </div>
+                    <div style="font-size:3rem;align-self:center;">⟷</div>
+                    <div class="thread-box">
+                        <div class="thread-icon">🧵</div>
+                        <div>Thread B</div>
+                        <div class="lock-arrow">⬇️ possui</div>
+                        <div class="lock-box has">Lock 2</div>
+                        <div class="lock-arrow">⬇️ quer</div>
+                        <div class="lock-box wants">Lock 1</div>
+                    </div>
+                </div>
+
+                <h4>Código que causa Deadlock:</h4>
+                <pre><span class="cm">// Thread A</span>
+<span class="kw">synchronized</span>(lock1) {
+    <span class="ty">Thread</span>.<span class="fn">sleep</span>(<span class="str">100</span>);
+    <span class="kw">synchronized</span>(lock2) {  <span class="cm">// Espera lock2</span>
+        <span class="cm">// ...</span>
+    }
+}
+
+<span class="cm">// Thread B (executando simultaneamente)</span>
+<span class="kw">synchronized</span>(lock2) {
+    <span class="ty">Thread</span>.<span class="fn">sleep</span>(<span class="str">100</span>);
+    <span class="kw">synchronized</span>(lock1) {  <span class="cm">// Espera lock1</span>
+        <span class="cm">// ...</span>
+    }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Soluções -->
+        <section class="panel" data-key="solucoes">
+            <div class="box">
+                <h3>Como Evitar Problemas</h3>
+
+                <h4>1. Ordenação de Locks (evita Deadlock)</h4>
+                <pre><span class="cm">// Sempre adquira locks na mesma ordem!</span>
+<span class="kw">synchronized</span>(lock1) {  <span class="cm">// Sempre lock1 primeiro</span>
+    <span class="kw">synchronized</span>(lock2) {
+        <span class="cm">// ...</span>
+    }
+}</pre>
+
+                <h4>2. Timeout (evita bloqueio infinito)</h4>
+                <pre><span class="kw">if</span> (lock.<span class="fn">tryLock</span>(<span class="str">1</span>, <span class="ty">TimeUnit</span>.SECONDS)) {
+    <span class="kw">try</span> {
+        <span class="cm">// trabalho...</span>
+    } <span class="kw">finally</span> {
+        lock.<span class="fn">unlock</span>();
+    }
+} <span class="kw">else</span> {
+    <span class="cm">// Não conseguiu lock, tente outra estratégia</span>
+}</pre>
+
+                <h4>3. Fair Lock (evita Starvation)</h4>
+                <pre><span class="cm">// fair=true: ordem de chegada respeitada</span>
+<span class="ty">ReentrantLock</span> lock = <span class="kw">new</span> <span class="ty">ReentrantLock</span>(<span class="kw">true</span>);</pre>
+
+                <div class="box" style="background:#d1fae5;border-color:var(--thread);">
+                    <strong>💡 Dica:</strong> Use classes thread-safe como <code>ConcurrentHashMap</code>,
+                    <code>AtomicInteger</code> e <code>BlockingQueue</code> quando possível.
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="panel" data-key="quiz">
+            <div class="box">
+                <h3>Quiz — Problemas de Concorrência</h3>
+                <div id="quiz-items"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tabs
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const btn = e.target.closest('.tab'); if (!btn) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+        });
+
+        // Problem cards
+        document.querySelectorAll('.problem-card').forEach(card => {
+            card.addEventListener('click', () => {
+                document.querySelectorAll('.problem-card').forEach(c => c.classList.remove('selected'));
+                card.classList.add('selected');
+            });
+        });
+
+        // Quiz
+        const quizzes = [
+            { q: 'Deadlock ocorre quando...', opts: ['Threads dormem', 'Threads esperam recursos que nunca serão liberados', 'Thread morre'], ans: 1 },
+            { q: 'Para evitar deadlock, devemos...', opts: ['Usar mais threads', 'Adquirir locks sempre na mesma ordem', 'Não usar synchronized'], ans: 1 },
+            { q: 'Starvation significa...', opts: ['Thread morre', 'Thread nunca consegue acesso', 'Thread executa muito rápido'], ans: 1 },
+            { q: 'tryLock() com timeout...', opts: ['Espera infinitamente', 'Desiste após tempo limite', 'Lança exceção'], ans: 1 },
+            { q: 'ReentrantLock(true) significa...', opts: ['Lock reentrante', 'Lock justo (FIFO)', 'Auto-unlock'], ans: 1 }
+        ];
+
+        document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+        document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+                const fb = document.getElementById(`qfb-${qi}`);
+                fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+                fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+            });
+        });
+    </script>
+</body>
+
+</html>

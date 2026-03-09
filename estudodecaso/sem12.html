@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 12 — Validações Finais e App Store</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 12 — Metadados de Loja e Error Handling</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Gerar um polimento aprimorado UX ("Empty States" - quando a visualização não for possível ou estiver
+                vazia) e amigável (tratamento de exceções que poderiam crachar), finalizando a semana preparando o
+                dossiê textual da App Store que embasará a publicação.</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Escreva os Alertas de Queda e Estados Vazios (Empty States)</strong> <span
+                        class="tool-tag">FlutterFlow</span>
+                    <p>Ligue o "Error Handling" True nas operações de leitura e gravação no servidor para mostrar
+                        Snackbars (ex: Você está sem conexão com a internet) caso falhe. Configure imagens atrativas de
+                        caixas de ilustrações caso uma leitura ListView retorne 0 itens localizados do banco.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Prepare as Estratégias de Descrição de Venda (ASO)</strong> <span class="tool-tag">ChatGPT /
+                        AI</span>
+                    <p>Escreva o texto final de "Short Description", e as Linhas Longas detalhadas simulando o que o
+                        consumidor observará para decidir baixar o App na janela da Loja oficial do Google Play.</p>
+                    <p><em>Exemplo de Prompt: "Atuando como um Especialista em ASO e Marketing de Apps, crie uma
+                            'Descrição Breve' e as 3 primeiras linhas de uma 'Descrição Completa' cativante
+                            para..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Capture Momentos Vitrine</strong> <span class="tool-tag">Figma / Previewed.app</span>
+                    <p>Capture as Views completas e desenhe as imagens ilustradas em molduras de celulares contendo
+                        frases curtas e chamativas que servem de introdução nas lojas de publicações móveis na Galeria
+                        de Prints do App (Sua Vitrine).</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/13RNxYgdk3YxPwJzgcD0zyrritIEPXMs1eapI6Cwd_hk/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Polimento Promocional (ASO) e Experiência do Usuário</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja como o grupo do <strong>FinanCampus</strong> preparou o app para publicação.</p>
+
+            <img src="../images/fig_error_mockup.png" class="img-fluid" alt="Empty state preview">
+            <br /><br />
+
+            <p><strong>Error handling implementado em 5 Actions:</strong></p>
+            <ul>
+                <li>Insert de transação: SnackBar "Não foi possível salvar. Verifique sua conexão."</li>
+                <li>Login: Alert Dialog "E-mail ou senha incorretos." (sem expor o erro técnico do
+                    Firebase)</li>
+                <li>Cadastro: Alert Dialog "E-mail já cadastrado."</li>
+                <li>Carregamento da lista: empty state com ícone e texto "Nenhuma transação ainda. Toque
+                    em + para começar!"</li>
+                <li>Perda de conexão: SnackBar "Sem conexão com a internet. Tente novamente."</li>
+            </ul>
+            <p><strong>Metadados da Play Store preenchidos:</strong></p>
+            <ul>
+                <li><strong>Nome:</strong> FinanCampus — Controle de Gastos</li>
+                <li><strong>Descrição breve:</strong> "Controle seus gastos mensais de forma simples e
+                    visual."</li>
+                <li><strong>Categoria:</strong> Finanças</li>
+            </ul>
+            <p><strong>Política de privacidade:</strong> publicada em página do Notion
+                (<em>notion.so/financampus/privacidade</em>), descrevendo coleta de
+                e-mail e dados financeiros informados pelo usuário.</p>
+        </div>
+    </main>
+</body>
+
+</html>

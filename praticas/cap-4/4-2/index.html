@@ -1,0 +1,452 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Práticas 4.2 — Ciclo de Vida de Thread</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --thread: #059669;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #d1fae5;
+            border-color: var(--thread);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background: #d1fae5;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .feedback.ok {
+            color: var(--good);
+        }
+
+        .feedback.err {
+            color: #dc2626;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        .kw {
+            color: #93c5fd;
+        }
+
+        .ty {
+            color: #fdba74;
+        }
+
+        .str {
+            color: #86efac;
+        }
+
+        .cm {
+            color: #94a3b8;
+        }
+
+        /* State Diagram */
+        .state-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            margin: 20px 0;
+        }
+
+        .state-row {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .state {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .state:hover {
+            transform: scale(1.05);
+        }
+
+        .state.new {
+            border-color: #6366f1;
+            background: #eef2ff;
+        }
+
+        .state.runnable {
+            border-color: var(--thread);
+            background: #d1fae5;
+        }
+
+        .state.blocked {
+            border-color: #f59e0b;
+            background: #fef3c7;
+        }
+
+        .state.waiting {
+            border-color: #ec4899;
+            background: #fce7f3;
+        }
+
+        .state.terminated {
+            border-color: #6b7280;
+            background: #f3f4f6;
+        }
+
+        .state.selected {
+            box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.4);
+        }
+
+        .state-arrow {
+            color: var(--muted);
+            font-size: 1.2rem;
+        }
+
+        .state-detail {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 16px;
+            min-height: 100px;
+        }
+
+        /* Simulator */
+        .thread-sim {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 10px;
+            margin: 12px 0;
+        }
+
+        .thread-bar {
+            flex: 1;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .thread-progress {
+            height: 100%;
+            background: var(--thread);
+            transition: width 0.1s;
+        }
+
+        .thread-label {
+            font-weight: 600;
+            min-width: 80px;
+        }
+
+        .thread-state {
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Práticas 4.2 — Ciclo de Vida de uma Thread</h2>
+
+        <div class="tabs">
+            <button class="tab active" data-key="estados">Estados</button>
+            <button class="tab" data-key="metodos">Métodos</button>
+            <button class="tab" data-key="simulador">Simulador</button>
+            <button class="tab" data-key="quiz">Quiz</button>
+        </div>
+
+        <!-- Estados -->
+        <section class="panel active" data-key="estados">
+            <div class="box">
+                <h3>Estados de uma Thread</h3>
+                <p class="note">Clique em um estado para ver detalhes:</p>
+
+                <div class="state-diagram">
+                    <div class="state new selected" data-state="new">🆕 NEW</div>
+                    <div class="state-arrow">↓ start()</div>
+                    <div class="state runnable" data-state="runnable">▶️ RUNNABLE</div>
+                    <div class="state-row">
+                        <div class="state-arrow">←</div>
+                        <div class="state blocked" data-state="blocked">🔒 BLOCKED</div>
+                        <div class="state waiting" data-state="waiting">⏳ WAITING</div>
+                        <div class="state-arrow">→</div>
+                    </div>
+                    <div class="state-arrow">↓ run() termina</div>
+                    <div class="state terminated" data-state="terminated">⏹️ TERMINATED</div>
+                </div>
+
+                <div class="state-detail" id="state-detail">
+                    <h4>🆕 NEW</h4>
+                    <p>Thread criada, mas <code>start()</code> ainda não foi chamado.</p>
+                    <pre>Thread t = new Thread(() -> {...});
+// Estado: NEW</pre>
+                </div>
+            </div>
+        </section>
+
+        <!-- Métodos -->
+        <section class="panel" data-key="metodos">
+            <div class="box">
+                <h3>Métodos para Controle de Thread</h3>
+
+                <pre><span class="cm">// Iniciar execução</span>
+thread.<span class="fn">start</span>();
+
+<span class="cm">// Pausar execução (sleep)</span>
+<span class="ty">Thread</span>.<span class="fn">sleep</span>(<span class="str">1000</span>); <span class="cm">// 1 segundo</span>
+
+<span class="cm">// Esperar outra thread terminar (join)</span>
+outraThread.<span class="fn">join</span>();
+
+<span class="cm">// Verificar se está viva</span>
+<span class="kw">boolean</span> viva = thread.<span class="fn">isAlive</span>();
+
+<span class="cm">// Obter estado atual</span>
+<span class="ty">Thread.State</span> estado = thread.<span class="fn">getState</span>();
+
+<span class="cm">// Interromper (sinaliza para parar)</span>
+thread.<span class="fn">interrupt</span>();
+
+<span class="cm">// Ceder tempo para outras threads</span>
+<span class="ty">Thread</span>.<span class="fn">yield</span>();</pre>
+            </div>
+        </section>
+
+        <!-- Simulador -->
+        <section class="panel" data-key="simulador">
+            <div class="box">
+                <h3>Simulador de Threads</h3>
+                <p class="note">Crie threads e observe seus estados:</p>
+
+                <div id="threads-container">
+                    <div class="thread-sim">
+                        <span class="thread-label">Thread 1</span>
+                        <div class="thread-bar">
+                            <div class="thread-progress" id="t1-progress" style="width:0%"></div>
+                        </div>
+                        <span class="thread-state" id="t1-state" style="background:#eef2ff;">NEW</span>
+                    </div>
+                    <div class="thread-sim">
+                        <span class="thread-label">Thread 2</span>
+                        <div class="thread-bar">
+                            <div class="thread-progress" id="t2-progress" style="width:0%"></div>
+                        </div>
+                        <span class="thread-state" id="t2-state" style="background:#eef2ff;">NEW</span>
+                    </div>
+                </div>
+
+                <div style="margin-top:12px;">
+                    <button class="btn" id="start-sim">▶ start() ambas</button>
+                    <button class="btn" id="reset-sim">🔄 Reset</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="panel" data-key="quiz">
+            <div class="box">
+                <h3>Quiz — Ciclo de Vida</h3>
+                <div id="quiz-items"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tabs
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const btn = e.target.closest('.tab'); if (!btn) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+        });
+
+        // Estados
+        const stateDetails = {
+            'new': `<h4>🆕 NEW</h4><p>Thread criada, mas <code>start()</code> ainda não foi chamado.</p>
+<pre>Thread t = new Thread(() -> {...});
+// Estado: NEW</pre>`,
+            runnable: `<h4>▶️ RUNNABLE</h4><p>Thread em execução ou pronta para executar. O escalonador da JVM decide quando rodar.</p>
+<pre>t.start();
+// Estado: RUNNABLE (executando ou aguardando CPU)</pre>`,
+            blocked: `<h4>🔒 BLOCKED</h4><p>Thread esperando para adquirir um lock (synchronized).</p>
+<pre>synchronized(objeto) { // outra thread tem o lock
+    // ...
+} // Estado: BLOCKED até obter o lock</pre>`,
+            waiting: `<h4>⏳ WAITING</h4><p>Thread esperando indefinidamente por outra thread (wait, join).</p>
+<pre>objeto.wait();      // WAITING
+outraThread.join(); // WAITING até outra terminar</pre>`,
+            terminated: `<h4>⏹️ TERMINATED</h4><p>Thread finalizou execução (run() terminou ou exceção).</p>
+<pre>// Após run() completar
+// Estado: TERMINATED (não pode reiniciar)</pre>`
+        };
+
+        document.querySelectorAll('.state').forEach(s => {
+            s.addEventListener('click', () => {
+                document.querySelectorAll('.state').forEach(st => st.classList.remove('selected'));
+                s.classList.add('selected');
+                document.getElementById('state-detail').innerHTML = stateDetails[s.dataset.state];
+            });
+        });
+
+        // Simulador
+        let t1 = 0, t2 = 0, running = false;
+        const stateColors = { NEW: '#eef2ff', RUNNABLE: '#d1fae5', TERMINATED: '#f3f4f6' };
+
+        document.getElementById('start-sim').addEventListener('click', () => {
+            if (running) return;
+            running = true;
+            t1 = 0; t2 = 0;
+
+            const interval = setInterval(() => {
+                const speed1 = Math.random() * 5;
+                const speed2 = Math.random() * 5;
+                t1 = Math.min(100, t1 + speed1);
+                t2 = Math.min(100, t2 + speed2);
+
+                document.getElementById('t1-progress').style.width = t1 + '%';
+                document.getElementById('t2-progress').style.width = t2 + '%';
+
+                const s1 = t1 >= 100 ? 'TERMINATED' : 'RUNNABLE';
+                const s2 = t2 >= 100 ? 'TERMINATED' : 'RUNNABLE';
+
+                document.getElementById('t1-state').textContent = s1;
+                document.getElementById('t1-state').style.background = stateColors[s1];
+                document.getElementById('t2-state').textContent = s2;
+                document.getElementById('t2-state').style.background = stateColors[s2];
+
+                if (t1 >= 100 && t2 >= 100) {
+                    clearInterval(interval);
+                    running = false;
+                }
+            }, 100);
+        });
+
+        document.getElementById('reset-sim').addEventListener('click', () => {
+            t1 = 0; t2 = 0; running = false;
+            document.getElementById('t1-progress').style.width = '0%';
+            document.getElementById('t2-progress').style.width = '0%';
+            document.getElementById('t1-state').textContent = 'NEW';
+            document.getElementById('t1-state').style.background = stateColors.NEW;
+            document.getElementById('t2-state').textContent = 'NEW';
+            document.getElementById('t2-state').style.background = stateColors.NEW;
+        });
+
+        // Quiz
+        const quizzes = [
+            { q: 'Após new Thread(), o estado é...', opts: ['RUNNABLE', 'NEW', 'WAITING'], ans: 1 },
+            { q: 'Thread.sleep() coloca a thread em...', opts: ['BLOCKED', 'TIMED_WAITING', 'TERMINATED'], ans: 1 },
+            { q: 'join() faz a thread chamadora...', opts: ['Terminar', 'Esperar outra thread', 'Dormir'], ans: 1 },
+            { q: 'Uma thread TERMINATED pode ser reiniciada?', opts: ['Sim', 'Não', 'Apenas com reset()'], ans: 1 },
+            { q: 'isAlive() retorna true quando...', opts: ['Estado NEW', 'Antes de start()', 'Start() chamado e não terminou'], ans: 2 }
+        ];
+
+        document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+        document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+                const fb = document.getElementById(`qfb-${qi}`);
+                fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+                fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+            });
+        });
+    </script>
+</body>
+
+</html>

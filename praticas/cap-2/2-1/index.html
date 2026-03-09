@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 2.1 — Conexão JDBC</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --jdbc: #336791;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #e0f2fe;
+      border-color: var(--jdbc);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #e0f2fe;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    /* Pipeline */
+    .pipeline {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    .pipeline-step {
+      background: #fff;
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      text-align: center;
+    }
+
+    .pipeline-step.active {
+      border-color: var(--jdbc);
+      background: #e0f2fe;
+    }
+
+    .pipeline-arrow {
+      color: var(--muted);
+      font-size: 1.5rem;
+    }
+
+    /* URL Builder */
+    .url-builder {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .url-part {
+      display: inline-block;
+      padding: 6px 12px;
+      margin: 2px;
+      border-radius: 6px;
+      font-family: monospace;
+    }
+
+    .url-part.protocol {
+      background: #dbeafe;
+    }
+
+    .url-part.vendor {
+      background: #fef3c7;
+    }
+
+    .url-part.host {
+      background: #d1fae5;
+    }
+
+    .url-part.port {
+      background: #fce7f3;
+    }
+
+    .url-part.database {
+      background: #e0e7ff;
+    }
+
+    .url-result {
+      background: #1e293b;
+      color: #86efac;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      margin-top: 12px;
+      word-break: break-all;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+
+    input[type="text"],
+    select {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 2.1 — Conexão com Banco de Dados (JDBC)</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="conceito">Conceito</button>
+      <button class="tab" data-key="url">URL de Conexão</button>
+      <button class="tab" data-key="simulador">Simulador</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Conceito -->
+    <section class="panel active" data-key="conceito">
+      <div class="box">
+        <h3>O que é JDBC?</h3>
+        <p><strong>JDBC</strong> (Java Database Connectivity) é a API padrão do Java para conexão com bancos de dados
+          relacionais.</p>
+
+        <div class="pipeline">
+          <div class="pipeline-step">
+            <strong>🐘 BD</strong>
+            <p class="note">PostgreSQL</p>
+          </div>
+          <div class="pipeline-arrow">↔</div>
+          <div class="pipeline-step active">
+            <strong>🔌 Driver</strong>
+            <p class="note">postgresql.jar</p>
+          </div>
+          <div class="pipeline-arrow">↔</div>
+          <div class="pipeline-step">
+            <strong>☕ JDBC API</strong>
+            <p class="note">java.sql.*</p>
+          </div>
+          <div class="pipeline-arrow">↔</div>
+          <div class="pipeline-step">
+            <strong>📱 App Java</strong>
+            <p class="note">Sua aplicação</p>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Classe/Interface</th>
+              <th>Função</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>DriverManager</code></td>
+              <td>Gerencia drivers, obtém Connection</td>
+            </tr>
+            <tr>
+              <td><code>Connection</code></td>
+              <td>Representa conexão com o BD</td>
+            </tr>
+            <tr>
+              <td><code>Statement</code></td>
+              <td>Executa SQL simples</td>
+            </tr>
+            <tr>
+              <td><code>PreparedStatement</code></td>
+              <td>SQL parametrizado (seguro)</td>
+            </tr>
+            <tr>
+              <td><code>ResultSet</code></td>
+              <td>Resultados de SELECT</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- URL -->
+    <section class="panel" data-key="url">
+      <div class="box">
+        <h3>Anatomia da URL JDBC</h3>
+        <p class="note">A URL de conexão segue o formato:</p>
+
+        <div class="url-builder">
+          <span class="url-part protocol">jdbc:</span>
+          <span class="url-part vendor">postgresql://</span>
+          <span class="url-part host">localhost</span>
+          <span class="url-part port">:5432</span>
+          <span class="url-part database">/biblioteca</span>
+        </div>
+
+        <table style="margin-top:16px;">
+          <thead>
+            <tr>
+              <th>Parte</th>
+              <th>Descrição</th>
+              <th>Exemplo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="url-part protocol" style="padding:2px 6px;">jdbc:</span></td>
+              <td>Prefixo obrigatório</td>
+              <td>jdbc:</td>
+            </tr>
+            <tr>
+              <td><span class="url-part vendor" style="padding:2px 6px;">vendor</span></td>
+              <td>Tipo do banco</td>
+              <td>postgresql, mysql, oracle</td>
+            </tr>
+            <tr>
+              <td><span class="url-part host" style="padding:2px 6px;">host</span></td>
+              <td>Servidor</td>
+              <td>localhost, 192.168.1.1</td>
+            </tr>
+            <tr>
+              <td><span class="url-part port" style="padding:2px 6px;">port</span></td>
+              <td>Porta do BD</td>
+              <td>5432 (PostgreSQL), 3306 (MySQL)</td>
+            </tr>
+            <tr>
+              <td><span class="url-part database" style="padding:2px 6px;">database</span></td>
+              <td>Nome do banco</td>
+              <td>biblioteca, escola</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Simulador -->
+    <section class="panel" data-key="simulador">
+      <div class="box">
+        <h3>Construtor de URL JDBC</h3>
+        <p class="note">Monte sua URL de conexão:</p>
+
+        <div class="grid">
+          <div>
+            <div style="margin:8px 0;">
+              <label>Banco de Dados:</label><br>
+              <select id="sim-vendor">
+                <option value="postgresql">PostgreSQL</option>
+                <option value="mysql">MySQL</option>
+                <option value="oracle:thin:@">Oracle</option>
+              </select>
+            </div>
+            <div style="margin:8px 0;">
+              <label>Host:</label><br>
+              <input type="text" id="sim-host" value="localhost">
+            </div>
+            <div style="margin:8px 0;">
+              <label>Porta:</label><br>
+              <input type="text" id="sim-port" value="5432">
+            </div>
+            <div style="margin:8px 0;">
+              <label>Nome do Banco:</label><br>
+              <input type="text" id="sim-database" value="biblioteca">
+            </div>
+            <div style="margin:8px 0;">
+              <label>Usuário:</label><br>
+              <input type="text" id="sim-user" value="postgres">
+            </div>
+          </div>
+          <div>
+            <h4>URL Gerada:</h4>
+            <div class="url-result" id="url-result">jdbc:postgresql://localhost:5432/biblioteca</div>
+
+            <h4>Código Java:</h4>
+            <pre
+              id="code-result"><span class="ty">String</span> url = <span class="str">"jdbc:postgresql://localhost:5432/biblioteca"</span>;
+<span class="ty">String</span> user = <span class="str">"postgres"</span>;
+<span class="ty">String</span> password = <span class="str">"******"</span>;
+
+<span class="ty">Connection</span> conn = <span class="ty">DriverManager</span>.<span class="fn">getConnection</span>(url, user, password);</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Conexão JDBC</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Simulador
+    const ports = { postgresql: '5432', mysql: '3306', 'oracle:thin:@': '1521' };
+    const inputs = ['sim-vendor', 'sim-host', 'sim-port', 'sim-database', 'sim-user'];
+
+    function updateUrl() {
+      const vendor = document.getElementById('sim-vendor').value;
+      const host = document.getElementById('sim-host').value;
+      const port = document.getElementById('sim-port').value;
+      const db = document.getElementById('sim-database').value;
+      const user = document.getElementById('sim-user').value;
+
+      const url = `jdbc:${vendor}://${host}:${port}/${db}`;
+      document.getElementById('url-result').textContent = url;
+      document.getElementById('code-result').innerHTML =
+        `<span class="ty">String</span> url = <span class="str">"${url}"</span>;
+<span class="ty">String</span> user = <span class="str">"${user}"</span>;
+<span class="ty">String</span> password = <span class="str">"******"</span>;
+
+<span class="ty">Connection</span> conn = <span class="ty">DriverManager</span>.<span class="fn">getConnection</span>(url, user, password);`;
+    }
+
+    document.getElementById('sim-vendor').addEventListener('change', function () {
+      document.getElementById('sim-port').value = ports[this.value] || '5432';
+      updateUrl();
+    });
+
+    inputs.forEach(id => document.getElementById(id).addEventListener('input', updateUrl));
+
+    // Quiz
+    const quizzes = [
+      { q: 'Qual classe é usada para obter uma Connection?', opts: ['Connection', 'DriverManager', 'Statement'], ans: 1 },
+      { q: 'A porta padrão do PostgreSQL é...', opts: ['3306', '5432', '1521'], ans: 1 },
+      { q: 'O prefixo obrigatório da URL JDBC é...', opts: ['db:', 'jdbc:', 'sql:'], ans: 1 },
+      { q: 'PreparedStatement é mais seguro porque...', opts: ['É mais rápido', 'Previne SQL Injection', 'Usa menos memória'], ans: 1 },
+      { q: 'ResultSet armazena resultados de qual comando?', opts: ['INSERT', 'UPDATE', 'SELECT'], ans: 2 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+        fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,498 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 2.4 — Transações JDBC</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --jdbc: #336791;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #e0f2fe;
+      border-color: var(--jdbc);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #e0f2fe;
+    }
+
+    .btn.commit {
+      background: #dcfce7;
+      border-color: var(--good);
+    }
+
+    .btn.rollback {
+      background: #fee2e2;
+      border-color: #dc2626;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    /* ACID cards */
+    .acid-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .acid-card {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border: 2px solid #0ea5e9;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .acid-card h4 {
+      margin: 0 0 8px;
+      color: #0369a1;
+    }
+
+    .acid-card p {
+      margin: 0;
+      font-size: 0.85rem;
+    }
+
+    /* Simulador */
+    .sim-account {
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      margin: 8px 0;
+    }
+
+    .sim-account .balance {
+      font-size: 2rem;
+      font-weight: bold;
+      color: var(--jdbc);
+    }
+
+    .sim-account.error {
+      background: #fee2e2;
+      border-color: #dc2626;
+    }
+
+    .sim-account.success {
+      background: #dcfce7;
+      border-color: var(--good);
+    }
+
+    .transaction-log {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      max-height: 200px;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+
+    .log-entry {
+      margin: 4px 0;
+    }
+
+    .log-entry.sql {
+      color: #93c5fd;
+    }
+
+    .log-entry.success {
+      color: #86efac;
+    }
+
+    .log-entry.error {
+      color: #fca5a5;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 2.4 — Transações e Tratamento de Erros</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="acid">ACID</button>
+      <button class="tab" data-key="codigo">Código</button>
+      <button class="tab" data-key="simulador">Simulador</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- ACID -->
+    <section class="panel active" data-key="acid">
+      <div class="box">
+        <h3>Propriedades ACID</h3>
+        <p>Transações de banco de dados devem garantir as propriedades ACID:</p>
+
+        <div class="acid-cards">
+          <div class="acid-card">
+            <h4>🔗 Atomicidade</h4>
+            <p>Tudo ou nada. Se uma operação falha, todas são desfeitas.</p>
+          </div>
+          <div class="acid-card">
+            <h4>✅ Consistência</h4>
+            <p>BD sempre vai de um estado válido para outro válido.</p>
+          </div>
+          <div class="acid-card">
+            <h4>🔒 Isolamento</h4>
+            <p>Transações concorrentes não interferem entre si.</p>
+          </div>
+          <div class="acid-card">
+            <h4>💾 Durabilidade</h4>
+            <p>Após commit, dados persistem mesmo com falhas.</p>
+          </div>
+        </div>
+
+        <h4 style="margin-top:20px;">Fluxo de uma Transação:</h4>
+        <pre><span class="kw">try</span> {
+    conn.<span class="fn">setAutoCommit</span>(<span class="kw">false</span>);  <span class="cm">// Inicia transação</span>
+    
+    <span class="cm">// Operações...</span>
+    ps1.<span class="fn">executeUpdate</span>();
+    ps2.<span class="fn">executeUpdate</span>();
+    
+    conn.<span class="fn">commit</span>();  <span class="cm">// Confirma tudo</span>
+} <span class="kw">catch</span> (<span class="ty">SQLException</span> e) {
+    conn.<span class="fn">rollback</span>();  <span class="cm">// Desfaz tudo</span>
+} <span class="kw">finally</span> {
+    conn.<span class="fn">setAutoCommit</span>(<span class="kw">true</span>);
+}</pre>
+      </div>
+    </section>
+
+    <!-- Código -->
+    <section class="panel" data-key="codigo">
+      <div class="box">
+        <h3>Exemplo: Transferência Bancária</h3>
+
+        <pre><span class="kw">public void</span> <span class="fn">transferir</span>(<span class="kw">int</span> origem, <span class="kw">int</span> destino, <span class="kw">double</span> valor) 
+        <span class="kw">throws</span> <span class="ty">SQLException</span> {
+    <span class="ty">Connection</span> conn = <span class="kw">null</span>;
+    <span class="kw">try</span> {
+        conn = <span class="fn">getConnection</span>();
+        conn.<span class="fn">setAutoCommit</span>(<span class="kw">false</span>);  <span class="cm">// Desliga autocommit</span>
+        
+        <span class="cm">// Debita da origem</span>
+        <span class="ty">String</span> sqlDebito = <span class="str">"UPDATE conta SET saldo = saldo - ? WHERE id = ?"</span>;
+        <span class="ty">PreparedStatement</span> ps1 = conn.<span class="fn">prepareStatement</span>(sqlDebito);
+        ps1.<span class="fn">setDouble</span>(<span class="str">1</span>, valor);
+        ps1.<span class="fn">setInt</span>(<span class="str">2</span>, origem);
+        ps1.<span class="fn">executeUpdate</span>();
+        
+        <span class="cm">// Credita no destino</span>
+        <span class="ty">String</span> sqlCredito = <span class="str">"UPDATE conta SET saldo = saldo + ? WHERE id = ?"</span>;
+        <span class="ty">PreparedStatement</span> ps2 = conn.<span class="fn">prepareStatement</span>(sqlCredito);
+        ps2.<span class="fn">setDouble</span>(<span class="str">1</span>, valor);
+        ps2.<span class="fn">setInt</span>(<span class="str">2</span>, destino);
+        ps2.<span class="fn">executeUpdate</span>();
+        
+        conn.<span class="fn">commit</span>();  <span class="cm">// ✅ Confirma ambas operações</span>
+    } <span class="kw">catch</span> (<span class="ty">SQLException</span> e) {
+        <span class="kw">if</span> (conn != <span class="kw">null</span>) conn.<span class="fn">rollback</span>();  <span class="cm">// ❌ Desfaz tudo</span>
+        <span class="kw">throw</span> e;
+    }
+}</pre>
+      </div>
+    </section>
+
+    <!-- Simulador -->
+    <section class="panel" data-key="simulador">
+      <div class="box">
+        <h3>Simulador de Transação Bancária</h3>
+        <p class="note">Simule uma transferência entre contas:</p>
+
+        <div class="grid">
+          <div>
+            <div class="sim-account" id="acc-origem">
+              <strong>Conta Origem (#1)</strong>
+              <div class="balance" id="saldo-origem">R$ 1.000,00</div>
+            </div>
+            <div class="sim-account" id="acc-destino">
+              <strong>Conta Destino (#2)</strong>
+              <div class="balance" id="saldo-destino">R$ 500,00</div>
+            </div>
+
+            <div style="margin:16px 0;">
+              <label>Valor da Transferência: R$</label>
+              <input type="number" id="valor-transf" value="200" style="width:100px;padding:6px;">
+            </div>
+
+            <div>
+              <button class="btn" id="btn-begin">BEGIN</button>
+              <button class="btn" id="btn-debito">Debitar Origem</button>
+              <button class="btn" id="btn-credito">Creditar Destino</button>
+              <button class="btn commit" id="btn-commit">COMMIT ✓</button>
+              <button class="btn rollback" id="btn-rollback">ROLLBACK ✗</button>
+            </div>
+          </div>
+          <div>
+            <h4>Transaction Log:</h4>
+            <div class="transaction-log" id="tx-log">
+              <div class="log-entry">[Sistema] Pronto para iniciar transação</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Transações</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Simulador
+    let saldoOrigem = 1000, saldoDestino = 500;
+    let saldoOrigemTemp = 1000, saldoDestinoTemp = 500;
+    let inTransaction = false, debitado = false, creditado = false;
+
+    const logEl = document.getElementById('tx-log');
+
+    function log(msg, type = '') {
+      const entry = document.createElement('div');
+      entry.className = 'log-entry ' + type;
+      entry.textContent = msg;
+      logEl.appendChild(entry);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    function updateUI() {
+      document.getElementById('saldo-origem').textContent = `R$ ${saldoOrigemTemp.toFixed(2).replace('.', ',')}`;
+      document.getElementById('saldo-destino').textContent = `R$ ${saldoDestinoTemp.toFixed(2).replace('.', ',')}`;
+    }
+
+    document.getElementById('btn-begin').addEventListener('click', () => {
+      if (inTransaction) { log('[Erro] Transação já iniciada', 'error'); return; }
+      inTransaction = true;
+      debitado = false;
+      creditado = false;
+      log('conn.setAutoCommit(false);', 'sql');
+      log('[Sistema] Transação iniciada', 'success');
+    });
+
+    document.getElementById('btn-debito').addEventListener('click', () => {
+      if (!inTransaction) { log('[Erro] Inicie a transação primeiro (BEGIN)', 'error'); return; }
+      if (debitado) { log('[Erro] Já debitado', 'error'); return; }
+      const valor = parseFloat(document.getElementById('valor-transf').value);
+      if (saldoOrigemTemp < valor) { log('[Erro] Saldo insuficiente!', 'error'); return; }
+      saldoOrigemTemp -= valor;
+      debitado = true;
+      log(`UPDATE conta SET saldo = saldo - ${valor} WHERE id = 1;`, 'sql');
+      log(`[Pendente] Origem debitada em R$ ${valor.toFixed(2)}`, 'success');
+      updateUI();
+    });
+
+    document.getElementById('btn-credito').addEventListener('click', () => {
+      if (!inTransaction) { log('[Erro] Inicie a transação primeiro (BEGIN)', 'error'); return; }
+      if (creditado) { log('[Erro] Já creditado', 'error'); return; }
+      const valor = parseFloat(document.getElementById('valor-transf').value);
+      saldoDestinoTemp += valor;
+      creditado = true;
+      log(`UPDATE conta SET saldo = saldo + ${valor} WHERE id = 2;`, 'sql');
+      log(`[Pendente] Destino creditado em R$ ${valor.toFixed(2)}`, 'success');
+      updateUI();
+    });
+
+    document.getElementById('btn-commit').addEventListener('click', () => {
+      if (!inTransaction) { log('[Erro] Nenhuma transação ativa', 'error'); return; }
+      log('conn.commit();', 'sql');
+      saldoOrigem = saldoOrigemTemp;
+      saldoDestino = saldoDestinoTemp;
+      log('[Sucesso] Transação confirmada! Dados persistidos.', 'success');
+      document.getElementById('acc-origem').classList.add('success');
+      document.getElementById('acc-destino').classList.add('success');
+      inTransaction = false;
+      setTimeout(() => {
+        document.getElementById('acc-origem').classList.remove('success');
+        document.getElementById('acc-destino').classList.remove('success');
+      }, 2000);
+    });
+
+    document.getElementById('btn-rollback').addEventListener('click', () => {
+      if (!inTransaction) { log('[Erro] Nenhuma transação ativa', 'error'); return; }
+      log('conn.rollback();', 'sql');
+      saldoOrigemTemp = saldoOrigem;
+      saldoDestinoTemp = saldoDestino;
+      log('[Rollback] Operações desfeitas!', 'error');
+      document.getElementById('acc-origem').classList.add('error');
+      document.getElementById('acc-destino').classList.add('error');
+      inTransaction = false;
+      updateUI();
+      setTimeout(() => {
+        document.getElementById('acc-origem').classList.remove('error');
+        document.getElementById('acc-destino').classList.remove('error');
+      }, 2000);
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'O "A" de ACID significa...', opts: ['Autenticação', 'Atomicidade', 'Autorização'], ans: 1 },
+      { q: 'setAutoCommit(false) serve para...', opts: ['Desligar o banco', 'Iniciar transação manual', 'Fechar conexão'], ans: 1 },
+      { q: 'rollback() faz...', opts: ['Confirma alterações', 'Desfaz alterações pendentes', 'Fecha a conexão'], ans: 1 },
+      { q: 'Após commit(), os dados...', opts: ['Podem ser desfeitos', 'São persistidos definitivamente', 'Ficam em cache'], ans: 1 },
+      { q: 'Uma SQLException no meio da transação deve...', opts: ['Ser ignorada', 'Disparar rollback()', 'Chamar commit()'], ans: 1 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+        fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,441 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 1.3 — Tratamento de Eventos</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --javafx: #f7931e;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #fff7ed;
+      border-color: var(--javafx);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #fff7ed;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    /* Diagrama de fluxo */
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin: 20px 0;
+    }
+
+    .flow-node {
+      background: linear-gradient(135deg, #fff7ed, #ffedd5);
+      border: 2px solid var(--javafx);
+      border-radius: 12px;
+      padding: 16px 20px;
+      text-align: center;
+    }
+
+    .flow-node.user {
+      background: linear-gradient(135deg, #dbeafe, #eff6ff);
+      border-color: #3b82f6;
+    }
+
+    .flow-node.system {
+      background: linear-gradient(135deg, #d1fae5, #ecfdf5);
+      border-color: #10b981;
+    }
+
+    .flow-arrow {
+      color: var(--muted);
+      font-size: 1.5rem;
+    }
+
+    /* Simulador */
+    .sim-area {
+      background: #f8fafc;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      min-height: 200px;
+    }
+
+    .sim-button {
+      background: linear-gradient(to bottom, #f5f5f5, #e0e0e0);
+      border: 1px solid #ccc;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 8px;
+    }
+
+    .sim-button:hover {
+      background: linear-gradient(to bottom, #e8e8e8, #d8d8d8);
+    }
+
+    .sim-button:active {
+      background: linear-gradient(to bottom, #d0d0d0, #c0c0c0);
+    }
+
+    .event-log {
+      background: #1e293b;
+      color: #86efac;
+      padding: 12px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 0.85rem;
+      height: 150px;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+
+    .event-log .entry {
+      margin: 4px 0;
+    }
+
+    .event-log .time {
+      color: #94a3b8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 1.3 — Tratamento de Eventos</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="conceito">Conceito</button>
+      <button class="tab" data-key="sintaxe">Sintaxe</button>
+      <button class="tab" data-key="simulador">Simulador</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Conceito -->
+    <section class="panel active" data-key="conceito">
+      <div class="box">
+        <h3>Modelo de Eventos no JavaFX</h3>
+        <p>O JavaFX usa o padrão <strong>Observer</strong> para eventos. Quando ocorre uma ação (clique, digitação,
+          etc.),
+          um <strong>Event</strong> é criado e despachado para os handlers registrados.</p>
+
+        <div class="flow">
+          <div class="flow-node user">
+            <strong>👆 Usuário</strong>
+            <p class="note">Clica no botão</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node">
+            <strong>🎯 ActionEvent</strong>
+            <p class="note">Evento criado</p>
+          </div>
+          <div class="flow-arrow">→</div>
+          <div class="flow-node system">
+            <strong>⚙️ EventHandler</strong>
+            <p class="note">Código executado</p>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Evento</th>
+              <th>Origem</th>
+              <th>Método de Registro</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>ActionEvent</strong></td>
+              <td>Button, MenuItem, TextField (Enter)</td>
+              <td><code>setOnAction()</code></td>
+            </tr>
+            <tr>
+              <td><strong>MouseEvent</strong></td>
+              <td>Qualquer Node</td>
+              <td><code>setOnMouseClicked()</code></td>
+            </tr>
+            <tr>
+              <td><strong>KeyEvent</strong></td>
+              <td>Componentes com foco</td>
+              <td><code>setOnKeyPressed()</code></td>
+            </tr>
+            <tr>
+              <td><strong>ChangeListener</strong></td>
+              <td>Properties observáveis</td>
+              <td><code>addListener()</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Sintaxe -->
+    <section class="panel" data-key="sintaxe">
+      <div class="box">
+        <h3>Formas de Registrar Handlers</h3>
+
+        <h4>1. Classe Anônima (Tradicional)</h4>
+        <pre>button.<span class="fn">setOnAction</span>(<span class="kw">new</span> <span class="ty">EventHandler</span>&lt;<span class="ty">ActionEvent</span>&gt;() {
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">handle</span>(<span class="ty">ActionEvent</span> event) {
+        System.out.<span class="fn">println</span>(<span class="str">"Botão clicado!"</span>);
+    }
+});</pre>
+
+        <h4>2. Expressão Lambda (Recomendado)</h4>
+        <pre>button.<span class="fn">setOnAction</span>(event -> {
+    System.out.<span class="fn">println</span>(<span class="str">"Botão clicado!"</span>);
+});</pre>
+
+        <h4>3. Lambda Simplificado (uma linha)</h4>
+        <pre>button.<span class="fn">setOnAction</span>(e -> <span class="fn">processarClique</span>());</pre>
+
+        <h4>4. Referência de Método</h4>
+        <pre>button.<span class="fn">setOnAction</span>(<span class="kw">this</span>::<span class="fn">onButtonClick</span>);
+
+<span class="kw">private void</span> <span class="fn">onButtonClick</span>(<span class="ty">ActionEvent</span> e) {
+    System.out.<span class="fn">println</span>(<span class="str">"Handler separado!"</span>);
+}</pre>
+
+        <div class="box" style="background:#fffbeb;border-color:#f59e0b;margin-top:16px;">
+          <strong>💡 Dica:</strong> Use lambdas para handlers curtos e referências de método para lógica mais complexa.
+        </div>
+      </div>
+    </section>
+
+    <!-- Simulador -->
+    <section class="panel" data-key="simulador">
+      <div class="box">
+        <h3>Simulador de Eventos</h3>
+        <p class="note">Interaja com os componentes e observe os eventos no log:</p>
+        <div class="grid">
+          <div class="sim-area">
+            <button class="sim-button" id="btn-action">Clique (ActionEvent)</button>
+            <button class="sim-button" id="btn-mouse">Passe o mouse</button>
+            <input type="text" placeholder="Digite e pressione Enter" id="txt-key"
+              style="padding:8px;border:1px solid #ccc;border-radius:4px;margin:8px;">
+          </div>
+          <div>
+            <h4>Event Log:</h4>
+            <div class="event-log" id="event-log">
+              <div class="entry"><span class="time">[00:00]</span> Pronto para capturar eventos...</div>
+            </div>
+            <button class="btn" id="clear-log">Limpar Log</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Eventos JavaFX</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Simulador
+    const eventLog = document.getElementById('event-log');
+    let startTime = Date.now();
+
+    function log(message, type = 'info') {
+      const elapsed = ((Date.now() - startTime) / 1000).toFixed(2);
+      const colors = { action: '#86efac', mouse: '#93c5fd', key: '#fde68a' };
+      const entry = document.createElement('div');
+      entry.className = 'entry';
+      entry.innerHTML = `<span class="time">[${elapsed}s]</span> <span style="color:${colors[type] || '#e2e8f0'}">${message}</span>`;
+      eventLog.appendChild(entry);
+      eventLog.scrollTop = eventLog.scrollHeight;
+    }
+
+    document.getElementById('btn-action').addEventListener('click', () => {
+      log('ActionEvent: Button.setOnAction() disparado!', 'action');
+    });
+
+    const btnMouse = document.getElementById('btn-mouse');
+    btnMouse.addEventListener('mouseenter', () => log('MouseEvent: onMouseEntered', 'mouse'));
+    btnMouse.addEventListener('mouseleave', () => log('MouseEvent: onMouseExited', 'mouse'));
+    btnMouse.addEventListener('click', () => log('MouseEvent: onMouseClicked', 'mouse'));
+
+    document.getElementById('txt-key').addEventListener('keydown', (e) => {
+      log(`KeyEvent: onKeyPressed → key="${e.key}"`, 'key');
+      if (e.key === 'Enter') {
+        log('ActionEvent: TextField Enter → setOnAction() disparado!', 'action');
+      }
+    });
+
+    document.getElementById('clear-log').addEventListener('click', () => {
+      eventLog.innerHTML = '<div class="entry"><span class="time">[00:00]</span> Log limpo.</div>';
+      startTime = Date.now();
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'Qual método registra um handler para clique em Button?', opts: ['addClickListener()', 'setOnAction()', 'onClick()'], ans: 1 },
+      { q: 'Qual é a sintaxe correta para lambda?', opts: ['e -> código', 'e => código', 'lambda e: código'], ans: 0 },
+      { q: 'ActionEvent é disparado pelo TextField quando...', opts: ['usuário digita qualquer tecla', 'usuário pressiona Enter', 'campo perde foco'], ans: 1 },
+      { q: 'Para eventos de mouse, usamos...', opts: ['MouseEvent', 'ClickEvent', 'PointerEvent'], ans: 0 },
+      { q: 'Referência de método usa a sintaxe...', opts: ['this.metodo', 'this::metodo', 'this->metodo'], ans: 1 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        const correct = quizzes[qi].ans === oi;
+        fb.textContent = correct ? 'Correto! ✅' : 'Incorreto. Tente novamente.';
+        fb.className = 'feedback ' + (correct ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

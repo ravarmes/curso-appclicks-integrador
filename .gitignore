@@ -1,0 +1,35 @@
+# Arquivos de ambiente (credenciais)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Dependências
+node_modules/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# IDEs e editores
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Cache
+.cache/
+*.tmp
+
+# Build (se aplicável no futuro)
+dist/
+build/
+
+# Bibliografia
+_bibliografia/
+_prompts/

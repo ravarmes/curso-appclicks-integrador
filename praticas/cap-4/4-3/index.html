@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Práticas 4.3 — Sincronização</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --thread: #059669;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #d1fae5;
+            border-color: var(--thread);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background: #d1fae5;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .feedback.ok {
+            color: var(--good);
+        }
+
+        .feedback.err {
+            color: #dc2626;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        .kw {
+            color: #93c5fd;
+        }
+
+        .ty {
+            color: #fdba74;
+        }
+
+        .str {
+            color: #86efac;
+        }
+
+        .cm {
+            color: #94a3b8;
+        }
+
+        /* Counter sim */
+        .counter-display {
+            font-size: 4rem;
+            font-weight: bold;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .counter-display.error {
+            color: #dc2626;
+        }
+
+        .counter-display.ok {
+            color: var(--thread);
+        }
+
+        .sim-log {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.8rem;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Práticas 4.3 — Sincronização (synchronized)</h2>
+
+        <div class="tabs">
+            <button class="tab active" data-key="problema">O Problema</button>
+            <button class="tab" data-key="solucao">A Solução</button>
+            <button class="tab" data-key="simulador">Simulador</button>
+            <button class="tab" data-key="quiz">Quiz</button>
+        </div>
+
+        <!-- Problema -->
+        <section class="panel active" data-key="problema">
+            <div class="box">
+                <h3>Race Condition</h3>
+                <p>Quando múltiplas threads acessam e modificam o mesmo recurso simultaneamente,
+                    podem ocorrer <strong>condições de corrida</strong> (race conditions).</p>
+
+                <div class="grid">
+                    <div>
+                        <h4>❌ Código SEM sincronização:</h4>
+                        <pre><span class="kw">class</span> <span class="ty">Contador</span> {
+    <span class="kw">private int</span> valor = <span class="str">0</span>;
+    
+    <span class="kw">public void</span> <span class="fn">incrementar</span>() {
+        valor++;  <span class="cm">// NÃO é atômico!</span>
+    }
+}
+
+<span class="cm">// 2 threads incrementando 1000x cada</span>
+<span class="cm">// Esperado: 2000</span>
+<span class="cm">// Resultado: pode ser 1856, 1923, etc!</span></pre>
+                    </div>
+                    <div>
+                        <h4>Por que acontece?</h4>
+                        <p><code>valor++</code> não é atômico! São 3 operações:</p>
+                        <ol>
+                            <li>Lê valor atual</li>
+                            <li>Soma 1</li>
+                            <li>Escreve valor novo</li>
+                        </ol>
+                        <p>Se 2 threads leem o mesmo valor, uma sobrescreve a outra!</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Solução -->
+        <section class="panel" data-key="solucao">
+            <div class="box">
+                <h3>Usando synchronized</h3>
+
+                <h4>Opção 1: Método sincronizado</h4>
+                <pre><span class="kw">public synchronized void</span> <span class="fn">incrementar</span>() {
+    valor++;  <span class="cm">// Apenas 1 thread por vez</span>
+}</pre>
+
+                <h4>Opção 2: Bloco sincronizado</h4>
+                <pre><span class="kw">public void</span> <span class="fn">incrementar</span>() {
+    <span class="kw">synchronized</span>(<span class="kw">this</span>) {
+        valor++;
+    }
+}</pre>
+
+                <h4>Opção 3: Lock explícito</h4>
+                <pre><span class="kw">private</span> <span class="ty">ReentrantLock</span> lock = <span class="kw">new</span> <span class="ty">ReentrantLock</span>();
+
+<span class="kw">public void</span> <span class="fn">incrementar</span>() {
+    lock.<span class="fn">lock</span>();
+    <span class="kw">try</span> {
+        valor++;
+    } <span class="kw">finally</span> {
+        lock.<span class="fn">unlock</span>();
+    }
+}</pre>
+
+                <div class="box" style="background:#d1fae5;border-color:var(--thread);">
+                    <strong>💡 synchronized</strong> garante que apenas UMA thread por vez execute o trecho protegido.
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulador -->
+        <section class="panel" data-key="simulador">
+            <div class="box">
+                <h3>Simulador: Race Condition</h3>
+                <p class="note">Veja a diferença entre código sincronizado e não sincronizado:</p>
+
+                <div class="grid">
+                    <div>
+                        <h4>❌ Sem synchronized</h4>
+                        <div class="counter-display error" id="counter-async">0</div>
+                        <button class="btn" id="run-async">Executar 2 threads (1000x cada)</button>
+                    </div>
+                    <div>
+                        <h4>✅ Com synchronized</h4>
+                        <div class="counter-display ok" id="counter-sync">0</div>
+                        <button class="btn" id="run-sync">Executar 2 threads (1000x cada)</button>
+                    </div>
+                </div>
+
+                <div class="sim-log" id="sim-log">Clique em um botão para iniciar...</div>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="panel" data-key="quiz">
+            <div class="box">
+                <h3>Quiz — Sincronização</h3>
+                <div id="quiz-items"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tabs
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const btn = e.target.closest('.tab'); if (!btn) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+        });
+
+        // Simulador
+        const log = document.getElementById('sim-log');
+
+        function addLog(msg) {
+            log.innerHTML += '\n' + msg;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        document.getElementById('run-async').addEventListener('click', () => {
+            let counter = 0;
+            log.textContent = 'Iniciando SEM sincronização...';
+
+            // Simula race condition
+            const iterations = 1000;
+            let completed = 0;
+
+            function thread(name) {
+                for (let i = 0; i < iterations; i++) {
+                    // Simula operação não-atômica com delay
+                    const temp = counter;
+                    // Simula contexto switch aleatório
+                    if (Math.random() < 0.01) {
+                        counter = temp + 1;
+                    } else {
+                        counter++;
+                    }
+                }
+                completed++;
+                addLog(`${name} terminou`);
+                if (completed === 2) {
+                    document.getElementById('counter-async').textContent = counter;
+                    addLog(`Resultado: ${counter} (esperado: 2000)`);
+                    if (counter !== 2000) addLog('⚠️ RACE CONDITION DETECTADA!');
+                }
+            }
+
+            setTimeout(() => thread('Thread 1'), 0);
+            setTimeout(() => thread('Thread 2'), 0);
+        });
+
+        document.getElementById('run-sync').addEventListener('click', () => {
+            let counter = 0;
+            log.textContent = 'Iniciando COM sincronização...';
+
+            // Simula sincronização (sequencial)
+            const iterations = 1000;
+
+            for (let i = 0; i < iterations * 2; i++) {
+                counter++;
+            }
+
+            document.getElementById('counter-sync').textContent = counter;
+            addLog('Thread 1 terminou');
+            addLog('Thread 2 terminou');
+            addLog(`Resultado: ${counter} (esperado: 2000)`);
+            addLog('✅ Sincronização funcionou!');
+        });
+
+        // Quiz
+        const quizzes = [
+            { q: 'synchronized garante que...', opts: ['Código roda mais rápido', 'Apenas 1 thread por vez executa', 'Threads nunca bloqueiam'], ans: 1 },
+            { q: 'Race condition ocorre quando...', opts: ['Threads dormem', 'Múltiplas threads acessam recurso compartilhado', 'Apenas 1 thread existe'], ans: 1 },
+            { q: 'i++ é...', opts: ['Atômico', 'Não atômico (3 operações)', 'Thread-safe'], ans: 1 },
+            { q: 'Para sincronizar um bloco, usamos...', opts: ['synchronized(lock) {...}', 'lock {...}', 'mutex {...}'], ans: 0 },
+            { q: 'ReentrantLock é...', opts: ['Obsoleto', 'Alternativa ao synchronized', 'Para criar threads'], ans: 1 }
+        ];
+
+        document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+        document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+                const fb = document.getElementById(`qfb-${qi}`);
+                fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+                fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+            });
+        });
+    </script>
+</body>
+
+</html>

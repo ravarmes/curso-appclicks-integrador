@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Práticas 4.4 — Wait e Notify</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --thread: #059669;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #d1fae5;
+            border-color: var(--thread);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background: #d1fae5;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .feedback.ok {
+            color: var(--good);
+        }
+
+        .feedback.err {
+            color: #dc2626;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        .kw {
+            color: #93c5fd;
+        }
+
+        .ty {
+            color: #fdba74;
+        }
+
+        .str {
+            color: #86efac;
+        }
+
+        .cm {
+            color: #94a3b8;
+        }
+
+        /* Buffer animation */
+        .buffer-container {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .buffer {
+            display: flex;
+            gap: 4px;
+            padding: 8px;
+            background: #f1f5f9;
+            border-radius: 8px;
+            min-width: 200px;
+            min-height: 40px;
+        }
+
+        .buffer-item {
+            width: 30px;
+            height: 30px;
+            background: var(--thread);
+            border-radius: 6px;
+            animation: appear 0.3s;
+        }
+
+        @keyframes appear {
+            from {
+                transform: scale(0);
+            }
+
+            to {
+                transform: scale(1);
+            }
+        }
+
+        .actor {
+            text-align: center;
+        }
+
+        .actor-icon {
+            font-size: 2rem;
+        }
+
+        .actor-state {
+            font-size: 0.8rem;
+            padding: 4px 8px;
+            border-radius: 999px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+
+        .actor-state.producing {
+            background: #d1fae5;
+        }
+
+        .actor-state.consuming {
+            background: #fef3c7;
+        }
+
+        .actor-state.waiting {
+            background: #fee2e2;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Práticas 4.4 — Wait e Notify (Produtor-Consumidor)</h2>
+
+        <div class="tabs">
+            <button class="tab active" data-key="conceito">Conceito</button>
+            <button class="tab" data-key="codigo">Código</button>
+            <button class="tab" data-key="simulador">Simulador</button>
+            <button class="tab" data-key="quiz">Quiz</button>
+        </div>
+
+        <!-- Conceito -->
+        <section class="panel active" data-key="conceito">
+            <div class="box">
+                <h3>Comunicação entre Threads</h3>
+                <p><strong>wait()</strong> e <strong>notify()</strong> permitem que threads se comuniquem
+                    e coordenem suas ações sobre um recurso compartilhado.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Método</th>
+                            <th>O que faz</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>wait()</code></td>
+                            <td>Thread libera o lock e espera até ser notificada</td>
+                        </tr>
+                        <tr>
+                            <td><code>notify()</code></td>
+                            <td>Acorda UMA thread que está esperando</td>
+                        </tr>
+                        <tr>
+                            <td><code>notifyAll()</code></td>
+                            <td>Acorda TODAS as threads que estão esperando</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="box" style="background:#fffbeb;border-color:#f59e0b;">
+                    <strong>⚠️ Importante:</strong> wait(), notify() e notifyAll() só podem ser chamados
+                    dentro de um bloco <code>synchronized</code>.
+                </div>
+            </div>
+        </section>
+
+        <!-- Código -->
+        <section class="panel" data-key="codigo">
+            <div class="box">
+                <h3>Padrão Produtor-Consumidor</h3>
+
+                <pre><span class="kw">class</span> <span class="ty">Buffer</span> {
+    <span class="kw">private</span> <span class="ty">Queue</span>&lt;<span class="ty">Integer</span>&gt; fila = <span class="kw">new</span> <span class="ty">LinkedList</span>&lt;&gt;();
+    <span class="kw">private int</span> capacidade = <span class="str">5</span>;
+    
+    <span class="kw">public synchronized void</span> <span class="fn">produzir</span>(<span class="kw">int</span> item) <span class="kw">throws</span> <span class="ty">InterruptedException</span> {
+        <span class="cm">// Espera se buffer cheio</span>
+        <span class="kw">while</span> (fila.<span class="fn">size</span>() == capacidade) {
+            <span class="fn">wait</span>();  <span class="cm">// Libera lock, espera</span>
+        }
+        fila.<span class="fn">add</span>(item);
+        <span class="fn">notifyAll</span>();  <span class="cm">// Acorda consumidores</span>
+    }
+    
+    <span class="kw">public synchronized int</span> <span class="fn">consumir</span>() <span class="kw">throws</span> <span class="ty">InterruptedException</span> {
+        <span class="cm">// Espera se buffer vazio</span>
+        <span class="kw">while</span> (fila.<span class="fn">isEmpty</span>()) {
+            <span class="fn">wait</span>();
+        }
+        <span class="kw">int</span> item = fila.<span class="fn">poll</span>();
+        <span class="fn">notifyAll</span>();  <span class="cm">// Acorda produtores</span>
+        <span class="kw">return</span> item;
+    }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Simulador -->
+        <section class="panel" data-key="simulador">
+            <div class="box">
+                <h3>Simulador Produtor-Consumidor</h3>
+                <p class="note">Veja o buffer compartilhado sendo preenchido e esvaziado:</p>
+
+                <div class="buffer-container">
+                    <div class="actor">
+                        <div class="actor-icon">🏭</div>
+                        <div>Produtor</div>
+                        <div class="actor-state" id="producer-state">idle</div>
+                    </div>
+                    <div>→</div>
+                    <div style="text-align:center;">
+                        <div>Buffer (max 5)</div>
+                        <div class="buffer" id="buffer"></div>
+                    </div>
+                    <div>→</div>
+                    <div class="actor">
+                        <div class="actor-icon">🛒</div>
+                        <div>Consumidor</div>
+                        <div class="actor-state" id="consumer-state">idle</div>
+                    </div>
+                </div>
+
+                <div style="text-align:center;">
+                    <button class="btn" id="produce-btn">Produzir Item</button>
+                    <button class="btn" id="consume-btn">Consumir Item</button>
+                    <button class="btn" id="auto-btn">▶ Auto (5s)</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="panel" data-key="quiz">
+            <div class="box">
+                <h3>Quiz — Wait/Notify</h3>
+                <div id="quiz-items"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tabs
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const btn = e.target.closest('.tab'); if (!btn) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+        });
+
+        // Simulador
+        let buffer = [];
+        const MAX = 5;
+        const bufferEl = document.getElementById('buffer');
+        const producerState = document.getElementById('producer-state');
+        const consumerState = document.getElementById('consumer-state');
+
+        function updateBuffer() {
+            bufferEl.innerHTML = buffer.map(() => '<div class="buffer-item"></div>').join('');
+        }
+
+        function setState(el, state, className) {
+            el.textContent = state;
+            el.className = 'actor-state ' + className;
+        }
+
+        document.getElementById('produce-btn').addEventListener('click', () => {
+            if (buffer.length >= MAX) {
+                setState(producerState, 'wait()', 'waiting');
+                return;
+            }
+            setState(producerState, 'producing', 'producing');
+            buffer.push(1);
+            updateBuffer();
+            setTimeout(() => setState(producerState, 'notifyAll()', ''), 500);
+        });
+
+        document.getElementById('consume-btn').addEventListener('click', () => {
+            if (buffer.length === 0) {
+                setState(consumerState, 'wait()', 'waiting');
+                return;
+            }
+            setState(consumerState, 'consuming', 'consuming');
+            buffer.pop();
+            updateBuffer();
+            setTimeout(() => setState(consumerState, 'notifyAll()', ''), 500);
+        });
+
+        document.getElementById('auto-btn').addEventListener('click', () => {
+            let count = 0;
+            const interval = setInterval(() => {
+                if (Math.random() < 0.6 && buffer.length < MAX) {
+                    buffer.push(1);
+                    setState(producerState, 'producing', 'producing');
+                } else if (buffer.length > 0) {
+                    buffer.pop();
+                    setState(consumerState, 'consuming', 'consuming');
+                }
+                updateBuffer();
+                count++;
+                if (count > 10) clearInterval(interval);
+            }, 500);
+        });
+
+        // Quiz
+        const quizzes = [
+            { q: 'wait() deve ser chamado dentro de...', opts: ['try-catch', 'synchronized', 'while'], ans: 1 },
+            { q: 'notify() acorda...', opts: ['Todas as threads', 'Uma thread', 'Nenhuma thread'], ans: 1 },
+            { q: 'Se buffer está cheio, produtor deve...', opts: ['Continuar produzindo', 'wait()', 'throw exception'], ans: 1 },
+            { q: 'Por que usar while em vez de if com wait()?', opts: ['Performance', 'Evitar spurious wakeup', 'Sintaxe'], ans: 1 },
+            { q: 'notifyAll() é usado quando...', opts: ['Apenas 1 thread espera', 'Múltiplas threads podem continuar', 'Nunca'], ans: 1 }
+        ];
+
+        document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+        document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+                const fb = document.getElementById(`qfb-${qi}`);
+                fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+                fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+            });
+        });
+    </script>
+</body>
+
+</html>

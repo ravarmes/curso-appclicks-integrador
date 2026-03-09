@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 10 — Integrações e Testes</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 10 — Testes Sistêmicos de Integração (+ API externa)</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Certificar-se num ambiente realizado que o fluxo de uso da ponta a ponta não possui bloqueios críticos,
+                elaborando um processo de Quality Assurance (QA). Se aplicável ao conceito do MVP, realizar integração
+                com pelo menos uma API de mercado.</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Planeje os Casos de Teste (Caminho Feliz e de Exceção)</strong> <span
+                        class="tool-tag">ChatGPT / Claude</span>
+                    <p>Peça a sua IA colega de equipe para elaborar testes abrangentes descrevendo as entradas e os
+                        resultados esperados para cada fluxo construído (ex: um formulário digitado com erro e o
+                        bloqueio dele / um login realizado corretamente / verificar na coleção firebase se aquele dado
+                        salvo chegou inteiro).</p>
+                    <p><em>Exemplo de Prompt: "Atuando como um Analista de QA (Quality Assurance), liste 5 cenários de
+                            testes sistêmicos ('caminho feliz' e 'caminhos de exceção') focados na funcionalidade
+                            de..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Trabalhe em um Recurso Avançado (Opcional - APIs)</strong> <span
+                        class="tool-tag">FlutterFlow (API Calls)</span>
+                    <p>Busquem recursos prontos de APIs que encaixem como luva no App (previsão metereológica via
+                        OpenWeatherMap, ou um Preencher Endereço via CEP a partir do publico ViaCEP). Cadastre o
+                        endpoint em "API Calls" no menu do FlutterFlow e ligue em uma "Action" de página.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Mapeie o Funcional</strong> <span class="tool-tag">Word / Docs</span>
+                    <p>Assinale de fato o que foi atingido de sucesso nos Requisitos construídos até a respectiva semana
+                        da disciplina, tirando Screenshots/Vídeos contínuos da jornada que funciona.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/1TqHd3M2IHUoCfHGgIV-3r24PYDsFurDIn72W-h6H600/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Checklist de QA e Testes de Integração Sistêmica</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja os resultados dos testes de integração do <strong>FinanCampus</strong> com o Firebase.</p>
+
+            <img src="../images/fig_test_mockup.png" class="img-fluid" alt="Checklist QA">
+            <br /><br />
+
+            <p><strong>Resultado dos testes de integração (7/7 aprovados):</strong></p>
+            <ul>
+                <li>✅ Cadastro: novo usuário criado no Firebase Auth e documento inserido em
+                    <code>transacoes</code> automaticamente.
+                </li>
+                <li>✅ Login: token de autenticação retornado e armazenado; redirecionamento para Home.
+                </li>
+                <li>✅ Create: documento inserido, visível na coleção <code>transacoes</code> no console
+                    do
+                    Firebase.</li>
+                <li>✅ Read: listagem exibe apenas as transações do usuário logado (Security Rules
+                    funcionando).
+                </li>
+                <li>✅ Update: edição de transação refletida no banco em menos de 1 segundo.</li>
+                <li>✅ Delete: documento excluído do banco e removido da lista sem recarregar.</li>
+                <li>✅ Logout: sessão encerrada, tentativa de acessar dados retorna erro (Security Rules
+                    bloqueou).</li>
+            </ul>
+            <p><strong>API externa integrada:</strong> a API <strong>ViaCEP</strong> foi
+                configurada via API Call para preencher automaticamente o endereço na tela
+                de Configurações quando o usuário informa o CEP.</p>
+        </div>
+    </main>
+</body>
+
+</html>

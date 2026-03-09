@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 3.5 — Estrutura de Projeto</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --pattern: #7c3aed;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #ede9fe;
+      border-color: var(--pattern);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #ede9fe;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    /* File tree */
+    .file-tree {
+      font-family: monospace;
+      font-size: 0.9rem;
+      line-height: 1.8;
+    }
+
+    .file-tree .folder {
+      color: #f59e0b;
+      cursor: pointer;
+    }
+
+    .file-tree .folder::before {
+      content: '📁 ';
+    }
+
+    .file-tree .file {
+      color: var(--text);
+    }
+
+    .file-tree .file::before {
+      content: '📄 ';
+    }
+
+    .file-tree .file.java::before {
+      content: '☕ ';
+    }
+
+    .file-tree .file.fxml::before {
+      content: '🖼️ ';
+    }
+
+    .file-tree .file.css::before {
+      content: '🎨 ';
+    }
+
+    .file-tree .indent {
+      margin-left: 20px;
+    }
+
+    .file-tree .selectable {
+      cursor: pointer;
+      padding: 2px 4px;
+      border-radius: 4px;
+    }
+
+    .file-tree .selectable:hover {
+      background: #ede9fe;
+    }
+
+    .file-tree .selectable.selected {
+      background: var(--pattern);
+      color: white;
+    }
+
+    .file-detail {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 16px;
+      min-height: 200px;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 3.5 — Estrutura de Projeto Completo</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="estrutura">Estrutura</button>
+      <button class="tab" data-key="pacotes">Pacotes</button>
+      <button class="tab" data-key="boas">Boas Práticas</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Estrutura -->
+    <section class="panel active" data-key="estrutura">
+      <div class="box">
+        <h3>Estrutura de Pacotes</h3>
+        <p class="note">Clique em um arquivo para ver seu conteúdo:</p>
+
+        <div class="grid">
+          <div class="file-tree" id="file-tree">
+            <div class="folder">src</div>
+            <div class="indent folder">main</div>
+            <div class="indent indent folder">java</div>
+            <div class="indent indent indent folder">com.escola</div>
+
+            <div class="indent indent indent indent folder">model</div>
+            <div class="indent indent indent indent indent file java selectable" data-file="aluno">Aluno.java</div>
+
+            <div class="indent indent indent indent folder">dao</div>
+            <div class="indent indent indent indent indent file java selectable" data-file="alunoDao">AlunoDAO.java
+            </div>
+            <div class="indent indent indent indent indent file java selectable" data-file="alunoDaoJdbc">
+              AlunoDAOJDBC.java</div>
+
+            <div class="indent indent indent indent folder">factory</div>
+            <div class="indent indent indent indent indent file java selectable selected" data-file="daoFactory">
+              DAOFactory.java</div>
+
+            <div class="indent indent indent indent folder">controller</div>
+            <div class="indent indent indent indent indent file java selectable" data-file="alunoController">
+              AlunoController.java</div>
+
+            <div class="indent indent folder">resources</div>
+            <div class="indent indent indent folder">view</div>
+            <div class="indent indent indent indent file fxml selectable" data-file="alunoFxml">AlunoView.fxml</div>
+            <div class="indent indent indent file css selectable" data-file="styles">styles.css</div>
+          </div>
+          <div class="file-detail" id="file-detail">
+            <h4>📁 factory/DAOFactory.java</h4>
+            <pre><span class="kw">package</span> com.escola.factory;
+
+<span class="kw">public class</span> <span class="ty">DAOFactory</span> {
+    <span class="kw">private static</span> <span class="ty">Connection</span> conn;
+    
+    <span class="kw">public static</span> <span class="ty">AlunoDAO</span> <span class="fn">createAlunoDAO</span>() {
+        <span class="kw">return new</span> <span class="ty">AlunoDAOJDBC</span>(<span class="fn">getConnection</span>());
+    }
+}</pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pacotes -->
+    <section class="panel" data-key="pacotes">
+      <div class="box">
+        <h3>Organização de Pacotes</h3>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Pacote</th>
+              <th>Conteúdo</th>
+              <th>Responsabilidade</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>model</code></td>
+              <td>Aluno.java, Livro.java</td>
+              <td>Classes de domínio (entidades)</td>
+            </tr>
+            <tr>
+              <td><code>dao</code></td>
+              <td>AlunoDAO.java, AlunoDAOJDBC.java</td>
+              <td>Interfaces e implementações de acesso a dados</td>
+            </tr>
+            <tr>
+              <td><code>factory</code></td>
+              <td>DAOFactory.java</td>
+              <td>Criação de objetos e conexão</td>
+            </tr>
+            <tr>
+              <td><code>controller</code></td>
+              <td>AlunoController.java</td>
+              <td>Mediação View ↔ Model</td>
+            </tr>
+            <tr>
+              <td><code>resources/view</code></td>
+              <td>*.fxml</td>
+              <td>Layouts de tela</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="box" style="background:#fffbeb;border-color:#f59e0b;">
+          <strong>💡 Convenção:</strong> Pacotes em minúsculo, classes em PascalCase, um arquivo por classe.
+        </div>
+      </div>
+    </section>
+
+    <!-- Boas Práticas -->
+    <section class="panel" data-key="boas">
+      <div class="box">
+        <h3>Boas Práticas</h3>
+
+        <h4>✅ FAÇA:</h4>
+        <ul>
+          <li>Separe claramente as responsabilidades por pacote</li>
+          <li>Use interfaces para DAOs (flexibilidade)</li>
+          <li>Centralize conexão no Factory (singleton)</li>
+          <li>Mantenha Controllers magros (apenas mediação)</li>
+          <li>Coloque regras de negócio no Model ou Service</li>
+        </ul>
+
+        <h4>❌ EVITE:</h4>
+        <ul>
+          <li>SQL espalhado pelo código</li>
+          <li>Controller acessando banco diretamente</li>
+          <li>View conhecendo DAO</li>
+          <li>Lógica de negócio no Controller</li>
+          <li>Múltiplas responsabilidades em uma classe</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Estrutura de Projeto</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // File tree
+    const fileContents = {
+      aluno: `<h4>📁 model/Aluno.java</h4>
+<pre><span class="kw">package</span> com.escola.model;
+
+<span class="kw">public class</span> <span class="ty">Aluno</span> {
+    <span class="kw">private int</span> id;
+    <span class="kw">private</span> <span class="ty">String</span> nome;
+    <span class="kw">private</span> <span class="ty">String</span> email;
+    
+    <span class="cm">// Construtor, getters, setters...</span>
+}</pre>`,
+      alunoDao: `<h4>📁 dao/AlunoDAO.java</h4>
+<pre><span class="kw">package</span> com.escola.dao;
+
+<span class="kw">public interface</span> <span class="ty">AlunoDAO</span> {
+    <span class="kw">void</span> <span class="fn">inserir</span>(<span class="ty">Aluno</span> a);
+    <span class="ty">List</span>&lt;<span class="ty">Aluno</span>&gt; <span class="fn">listar</span>();
+    <span class="ty">Aluno</span> <span class="fn">buscar</span>(<span class="kw">int</span> id);
+    <span class="kw">void</span> <span class="fn">atualizar</span>(<span class="ty">Aluno</span> a);
+    <span class="kw">void</span> <span class="fn">excluir</span>(<span class="kw">int</span> id);
+}</pre>`,
+      alunoDaoJdbc: `<h4>📁 dao/AlunoDAOJDBC.java</h4>
+<pre><span class="kw">package</span> com.escola.dao;
+
+<span class="kw">public class</span> <span class="ty">AlunoDAOJDBC</span> <span class="kw">implements</span> <span class="ty">AlunoDAO</span> {
+    <span class="kw">private</span> <span class="ty">Connection</span> conn;
+    
+    <span class="kw">public</span> <span class="ty">AlunoDAOJDBC</span>(<span class="ty">Connection</span> c) {
+        <span class="kw">this</span>.conn = c;
+    }
+    
+    <span class="cm">// Implementações CRUD com PreparedStatement...</span>
+}</pre>`,
+      daoFactory: `<h4>📁 factory/DAOFactory.java</h4>
+<pre><span class="kw">package</span> com.escola.factory;
+
+<span class="kw">public class</span> <span class="ty">DAOFactory</span> {
+    <span class="kw">private static</span> <span class="ty">Connection</span> conn;
+    
+    <span class="kw">public static</span> <span class="ty">AlunoDAO</span> <span class="fn">createAlunoDAO</span>() {
+        <span class="kw">return new</span> <span class="ty">AlunoDAOJDBC</span>(<span class="fn">getConnection</span>());
+    }
+}</pre>`,
+      alunoController: `<h4>📁 controller/AlunoController.java</h4>
+<pre><span class="kw">package</span> com.escola.controller;
+
+<span class="kw">public class</span> <span class="ty">AlunoController</span> {
+    <span class="ann">@FXML</span> <span class="ty">TextField</span> txtNome;
+    <span class="ann">@FXML</span> <span class="ty">TableView</span>&lt;<span class="ty">Aluno</span>&gt; tabela;
+    
+    <span class="kw">private</span> <span class="ty">AlunoDAO</span> dao = <span class="ty">DAOFactory</span>.<span class="fn">createAlunoDAO</span>();
+    
+    <span class="ann">@FXML</span> <span class="kw">void</span> <span class="fn">salvar</span>() { ... }
+}</pre>`,
+      alunoFxml: `<h4>📁 resources/view/AlunoView.fxml</h4>
+<pre>&lt;VBox fx:controller="com.escola.controller.AlunoController"&gt;
+    &lt;TextField fx:id="txtNome"/&gt;
+    &lt;Button text="Salvar" onAction="#salvar"/&gt;
+    &lt;TableView fx:id="tabela"/&gt;
+&lt;/VBox&gt;</pre>`,
+      styles: `<h4>📁 resources/styles.css</h4>
+<pre>.root {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14px;
+}
+
+.button {
+    -fx-background-color: #7c3aed;
+    -fx-text-fill: white;
+}</pre>`
+    };
+
+    document.querySelectorAll('.selectable').forEach(el => {
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.selectable').forEach(e => e.classList.remove('selected'));
+        el.classList.add('selected');
+        document.getElementById('file-detail').innerHTML = fileContents[el.dataset.file];
+      });
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'Classes de domínio (Aluno, Livro) ficam no pacote...', opts: ['controller', 'model', 'view'], ans: 1 },
+      { q: 'Arquivos FXML ficam em...', opts: ['src/main/java', 'src/main/resources', 'src/test'], ans: 1 },
+      { q: 'AlunoDAOJDBC fica no pacote...', opts: ['model', 'controller', 'dao'], ans: 2 },
+      { q: 'O Controller deve obter DAO via...', opts: ['new AlunoDAOJDBC()', 'DAOFactory', 'Injeção manual'], ans: 1 },
+      { q: 'Uma boa prática é...', opts: ['SQL no Controller', 'Regras de negócio no Model', 'View acessar BD'], ans: 1 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+        fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

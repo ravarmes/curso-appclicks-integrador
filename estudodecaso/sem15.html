@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 15 — Setup de Pitch Final</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 15 — Pitching, PPTX e Demonstrações ao Vivo</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Desenvolver uma apresentação executiva para investidores e bancas técnicas focada num roteiro sedutor com
+                contorno de Storytelling de sua Persona. Adicionalmente, realizar os ensaios técnicos do espelhamento do
+                Banco e do App Live.</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Escreva os Tópicos do Storytelling da Apresentação</strong> <span class="tool-tag">ChatGPT /
+                        Doc</span>
+                    <p>O "Golden Circle": inicie pelo "Por quê?" e finalize pelas tecnologias implementadas. Recrie o
+                        documento detalhando em no máximo dez slides essa ponte com sua Persona de meses atrás.</p>
+                    <p><em>Exemplo de Prompt: "Ajude-me a estruturar um Pitch (roteiro de apresentação) de exatos 5
+                            minutos para a avaliação final do meu app. O roteiro deve envolver a banca com o problema
+                            focado na nossa persona, mostrar a solução, listar 3 diferenciais..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Projete Visualmente em Acordo Com a Marca</strong> <span class="tool-tag">Canva /
+                        PowerPoint</span>
+                    <p>Transfira esses sumários para o Canva. Utilize as mesmíssimas paletas de Identidade Visual feitas
+                        na Semana 8. É preciso que as margens e a letra dialoguem com a cor dominante e o acento.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Grave a Demo para Contingência de Risco</strong> <span class="tool-tag">Mobile
+                        Recorder</span>
+                    <p>Faça os 3 fluxos sistêmicos de maior valor que o aplicativo se propõe (ex: Login,
+                        Comprar/Doar/Consultar, Gerar Aviso). Para evitar desastres como um blackout de internet ao
+                        vivo, peça ao celular gravar a tela durante o teste para ter "planos B" valiosos na banca.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/1m81FMS_oNwZPJCxVVeUlDX8idzuvi6AHQB7tFyOj30E/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Roteiro e Guiagem de Apresentação Final (Pitch)</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja como o grupo do <strong>FinanCampus</strong> estruturou o pitch e a demos.</p>
+
+            <img src="../images/fig_pitch_mockup.png" class="img-fluid" alt="Golden Circle Flow">
+            <br /><br />
+
+            <p><strong>Abertura com storytelling:</strong> "Conheçam a Mariana... No início
+                do mês ela tem dinheiro. No final, não sabe para onde foi. Ela não é
+                descuidada — ela só não tem a ferramenta certa. Nós criamos o FinanCampus
+                para a Mariana."</p>
+            <p><strong>Roteiro da demo ao vivo (4 minutos):</strong></p>
+            <ol>
+                <li>Mostrar o app já aberto na tela Home com dados pré-cadastrados de Mariana.</li>
+                <li>Registrar uma nova transação: R$ 45,00 em Alimentação, tipo Despesa, data de hoje.
+                </li>
+                <li>Mostrar a atualização automática do saldo no Home.</li>
+                <li>Abrir o gráfico de pizza mostrando Alimentação como maior gasto.</li>
+                <li>Mostrar a notificação de orçamento disparada.</li>
+                <li>Abrir o Firebase ao vivo e mostrar o documento inserido na coleção.</li>
+            </ol>
+            <p><strong>Slides:</strong> 7 slides (Capa, Problema, Solução, Demo, Arquitetura,
+                Requisitos Atendidos, Próximos Passos). Fundo escuro com o azul
+                #2D6AF6 como cor principal.</p>
+            <p><strong>Vídeo de backup:</strong> gravado em 3 minutos, salvo no Google Drive
+                do grupo e disponível offline no celular do Bruno.</p>
+        </div>
+    </main>
+</body>
+
+</html>

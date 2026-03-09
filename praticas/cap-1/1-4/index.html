@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 1.4 — Binding e Propriedades</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --javafx: #f7931e;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #fff7ed;
+      border-color: var(--javafx);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #fff7ed;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    /* Binding diagram */
+    .binding-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .prop-box {
+      background: linear-gradient(135deg, #dbeafe, #eff6ff);
+      border: 2px solid #3b82f6;
+      border-radius: 12px;
+      padding: 16px 24px;
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .prop-box.source {
+      border-color: #10b981;
+      background: linear-gradient(135deg, #d1fae5, #ecfdf5);
+    }
+
+    .binding-arrow {
+      font-size: 2rem;
+      color: var(--javafx);
+    }
+
+    .binding-arrow.bidirectional::before {
+      content: '⟷';
+    }
+
+    .binding-arrow.unidirectional::before {
+      content: '→';
+    }
+
+    /* Simulador */
+    .sim-area {
+      background: #f8fafc;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .sim-slider {
+      width: 100%;
+      margin: 10px 0;
+    }
+
+    .sim-display {
+      font-size: 3rem;
+      font-weight: bold;
+      color: var(--javafx);
+      text-align: center;
+      padding: 20px;
+    }
+
+    .sim-progress {
+      height: 24px;
+      background: #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      margin: 10px 0;
+    }
+
+    .sim-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #f7931e, #fbbf24);
+      transition: width 0.2s;
+    }
+
+    .sim-text-display {
+      font-size: 1.5rem;
+      padding: 12px;
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      text-align: center;
+      min-height: 50px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 1.4 — Binding e Propriedades Observáveis</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="conceito">Conceito</button>
+      <button class="tab" data-key="tipos">Tipos de Binding</button>
+      <button class="tab" data-key="simulador">Simulador</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Conceito -->
+    <section class="panel active" data-key="conceito">
+      <div class="box">
+        <h3>O que são Properties e Bindings?</h3>
+        <p>No JavaFX, <strong>Properties</strong> são wrappers observáveis para valores. Quando o valor muda,
+          qualquer componente vinculado (<em>bound</em>) é automaticamente atualizado.</p>
+
+        <div class="binding-diagram">
+          <div class="prop-box source">
+            <strong>Source Property</strong>
+            <p class="note">slider.valueProperty()</p>
+          </div>
+          <div class="binding-arrow unidirectional"></div>
+          <div class="prop-box">
+            <strong>Target Property</strong>
+            <p class="note">label.textProperty()</p>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Property</th>
+              <th>Tipo do Valor</th>
+              <th>Uso Comum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>SimpleStringProperty</code></td>
+              <td>String</td>
+              <td>Textos, labels</td>
+            </tr>
+            <tr>
+              <td><code>SimpleIntegerProperty</code></td>
+              <td>int</td>
+              <td>Contadores, índices</td>
+            </tr>
+            <tr>
+              <td><code>SimpleDoubleProperty</code></td>
+              <td>double</td>
+              <td>Sliders, valores numéricos</td>
+            </tr>
+            <tr>
+              <td><code>SimpleBooleanProperty</code></td>
+              <td>boolean</td>
+              <td>Checkboxes, estados</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Vantagens do Binding:</h4>
+        <ul>
+          <li>✅ Sincronização automática (sem listeners manuais)</li>
+          <li>✅ Código mais limpo e declarativo</li>
+          <li>✅ Reatividade: UI reflete modelo automaticamente</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Tipos -->
+    <section class="panel" data-key="tipos">
+      <div class="box">
+        <h3>Tipos de Binding</h3>
+
+        <h4>1. Binding Unidirecional (bind)</h4>
+        <p class="note">Target sempre segue Source. Target não pode ser alterado diretamente.</p>
+        <pre><span class="cm">// Label sempre mostra o valor do slider</span>
+label.<span class="fn">textProperty</span>().<span class="fn">bind</span>(
+    slider.<span class="fn">valueProperty</span>().<span class="fn">asString</span>(<span class="str">"%.0f"</span>)
+);</pre>
+
+        <h4>2. Binding Bidirecional (bindBidirectional)</h4>
+        <p class="note">Ambos sincronizam. Alterar um altera o outro.</p>
+        <pre><span class="cm">// TextField e Property sincronizados</span>
+<span class="ty">StringProperty</span> nome = <span class="kw">new</span> <span class="ty">SimpleStringProperty</span>();
+textField.<span class="fn">textProperty</span>().<span class="fn">bindBidirectional</span>(nome);</pre>
+
+        <h4>3. Binding com Expressões</h4>
+        <pre><span class="cm">// Largura do progresso = slider / 100 * largura total</span>
+progressBar.<span class="fn">progressProperty</span>().<span class="fn">bind</span>(
+    slider.<span class="fn">valueProperty</span>().<span class="fn">divide</span>(<span class="str">100</span>)
+);</pre>
+
+        <h4>4. Listener Manual</h4>
+        <pre>slider.<span class="fn">valueProperty</span>().<span class="fn">addListener</span>((obs, old, novo) -> {
+    System.out.<span class="fn">println</span>(<span class="str">"Valor mudou: "</span> + novo);
+});</pre>
+      </div>
+    </section>
+
+    <!-- Simulador -->
+    <section class="panel" data-key="simulador">
+      <div class="box">
+        <h3>Simulador de Binding</h3>
+        <p class="note">Veja o binding em ação! O slider controla todos os componentes vinculados:</p>
+
+        <div class="grid">
+          <div class="sim-area">
+            <h4>Source: Slider</h4>
+            <input type="range" class="sim-slider" id="sim-slider" min="0" max="100" value="50">
+            <p class="note" style="text-align:center;">slider.valueProperty()</p>
+
+            <h4 style="margin-top:20px;">Binding Bidirecional:</h4>
+            <input type="text" id="sim-text-input" value="Olá JavaFX"
+              style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;">
+            <p class="note">textField.textProperty().bindBidirectional(stringProperty)</p>
+          </div>
+          <div>
+            <h4>Targets (Bound Properties):</h4>
+
+            <div class="sim-display" id="sim-value">50</div>
+            <p class="note" style="text-align:center;">label.textProperty().bind(slider.asString())</p>
+
+            <div class="sim-progress">
+              <div class="sim-progress-bar" id="sim-progress" style="width:50%"></div>
+            </div>
+            <p class="note" style="text-align:center;">progressBar.progressProperty().bind(slider.divide(100))</p>
+
+            <div class="sim-text-display" id="sim-text-display">Olá JavaFX</div>
+            <p class="note" style="text-align:center;">label.textProperty().bind(stringProperty)</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Binding e Properties</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Simulador - Binding Unidirecional (Slider)
+    const slider = document.getElementById('sim-slider');
+    const valueDisplay = document.getElementById('sim-value');
+    const progressBar = document.getElementById('sim-progress');
+
+    slider.addEventListener('input', () => {
+      const val = slider.value;
+      valueDisplay.textContent = val;
+      progressBar.style.width = val + '%';
+    });
+
+    // Simulador - Binding Bidirecional (Text)
+    const textInput = document.getElementById('sim-text-input');
+    const textDisplay = document.getElementById('sim-text-display');
+
+    textInput.addEventListener('input', () => {
+      textDisplay.textContent = textInput.value;
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'Qual método cria um binding unidirecional?', opts: ['bind()', 'bindBidirectional()', 'connect()'], ans: 0 },
+      { q: 'SimpleStringProperty armazena valores do tipo...', opts: ['int', 'String', 'Object'], ans: 1 },
+      { q: 'Em binding bidirecional, se A muda...', opts: ['B permanece igual', 'B também muda', 'A é revertido'], ans: 1 },
+      { q: 'Para ouvir mudanças em uma Property, usamos...', opts: ['addListener()', 'setOnChange()', 'observe()'], ans: 0 },
+      { q: 'slider.valueProperty().asString() retorna...', opts: ['int', 'StringBinding', 'double'], ans: 1 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        const correct = quizzes[qi].ans === oi;
+        fb.textContent = correct ? 'Correto! ✅' : 'Incorreto. Tente novamente.';
+        fb.className = 'feedback ' + (correct ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

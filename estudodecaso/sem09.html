@@ -1,0 +1,234 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 9 — Security Rules</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 9 — Firebase Security Rules</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Configurar de forma sólida a segurança na leitura e reescrita do Banco de Dados no Firebase, garantindo
+                que usuários que possuam vínculos sistêmicos apenas tenham acesso ao que realmente pertencem a eles.</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Escreva a lógica das Regras de Segurança</strong> <span class="tool-tag">ChatGPT /
+                        Claude</span>
+                    <p>Solicite a uma IA que o auxilie a preparar um snippet com as regras adequadas para as definições
+                        de suas coleções, baseando-se no modelo de controle que as mesmas possuem (acesso público
+                        restrito a Create, autenticação requerida e limitação por UID, por exemplo).</p>
+                    <p><em>Exemplo de Prompt: "Preciso criar regras de segurança (Security Rules) para o Firebase
+                            Firestore. Terei uma coleção [nome da coleção] onde o campo 'id_criador' armazena o ID do
+                            usuário logado. Escreva a regra..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Aplique no Firebase e Teste o Comportamento</strong> <span class="tool-tag">Firebase
+                        Console</span>
+                    <p>Adicione o bloco formatado no Firebase Console, vá em "Rules" (Regras) do Firestore, cole, e use
+                        a ferramenta "Rules Playground" do Firebase para simular acesso com IDs aleatórios e validar que
+                        o bloqueio realmente foi ativado.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Faça o Isolamento Testando Contas</strong> <span class="tool-tag">FlutterFlow (App)</span>
+                    <p>Dentro do próprio compilador do aplicativo, crie e logue em contas diferentes para visualizar se
+                        as listas de dados são retornadas corretamente em "vazias", caso o documento já criado não
+                        pertencesse a essa "nova" conta logada.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-content">
+                    <strong>Entregue a Validação das Regras</strong>
+                    <p>Tire Screenshots do Workspace do Firebase comprovando as regras recém-escritas ativadas, e cite
+                        as validações logadas e provadas eficientes com mais de uma conta.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/193Z5cRf4aQVf6Gw9lc86RJWMapIvALxsmVEorW2vye4/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Relatório de Testes de Security Rules</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja como o grupo do <strong>FinanCampus</strong> configurou as Security Rules nesta semana.</p>
+
+            <img src="../images/fig_rules_mockup.png" class="img-fluid" alt="Security Rules Configuration">
+            <br /><br />
+
+            <p><strong>Security Rules configuradas em todas as coleções:</strong></p>
+            <ul>
+                <li><code>transacoes</code>: regras de read, create, update e delete
+                    com condição <code>request.auth.uid == resource.data.usuario_uid</code>.</li>
+                <li><code>categorias</code>: leitura pública (todos leem as categorias
+                    pré-definidas); escrita restrita ao console.</li>
+            </ul>
+            <p><strong>Teste de isolamento:</strong> criaram dois usuários
+                (aluno1@teste.com e aluno2@teste.com). Cada um inseriu 3 transações.
+                Ao alternar entre as contas, a listagem exibiu apenas as transações do
+                usuário logado ✅. Tentativa de acesso via Rules Playground com UID
+                diferente resultou em operação bloqueada ✅.</p>
+        </div>
+    </main>
+</body>
+
+</html>

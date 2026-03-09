@@ -1,0 +1,407 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 3.1 — Padrão Controller</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --pattern: #7c3aed;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #ede9fe;
+      border-color: var(--pattern);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #ede9fe;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    .ann {
+      color: #c4b5fd;
+    }
+
+    /* MVC Diagram */
+    .mvc-diagram {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .mvc-layer {
+      background: linear-gradient(135deg, #ede9fe, #ddd6fe);
+      border: 2px solid var(--pattern);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      min-width: 150px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .mvc-layer:hover {
+      transform: scale(1.05);
+    }
+
+    .mvc-layer.view {
+      border-color: #3b82f6;
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    }
+
+    .mvc-layer.model {
+      border-color: #10b981;
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    }
+
+    .mvc-layer.selected {
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.3);
+    }
+
+    .mvc-layer h4 {
+      margin: 0 0 8px;
+    }
+
+    .mvc-arrow {
+      font-size: 2rem;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+    }
+
+    .layer-detail {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+      min-height: 100px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 3.1 — Padrão Controller</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="conceito">Conceito</button>
+      <button class="tab" data-key="diagrama">Diagrama MVC</button>
+      <button class="tab" data-key="codigo">Código</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Conceito -->
+    <section class="panel active" data-key="conceito">
+      <div class="box">
+        <h3>O que é o Padrão Controller?</h3>
+        <p>O <strong>Controller</strong> é a camada intermediária que conecta a <em>View</em> (interface)
+          ao <em>Model</em> (dados/lógica). Ele recebe eventos da View e coordena as ações necessárias.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Camada</th>
+              <th>Responsabilidade</th>
+              <th>Exemplo</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>View</strong></td>
+              <td>Interface gráfica, exibição</td>
+              <td>Tela JavaFX (FXML)</td>
+            </tr>
+            <tr>
+              <td><strong>Controller</strong></td>
+              <td>Lógica de apresentação, eventos</td>
+              <td>AlunoController.java</td>
+            </tr>
+            <tr>
+              <td><strong>Model</strong></td>
+              <td>Dados e regras de negócio</td>
+              <td>Aluno.java, AlunoService.java</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Vantagens:</h4>
+        <ul>
+          <li>✅ <strong>Separação de responsabilidades</strong> — Cada camada tem um papel claro</li>
+          <li>✅ <strong>Testabilidade</strong> — Controller pode ser testado sem a View</li>
+          <li>✅ <strong>Manutenibilidade</strong> — Mudanças em uma camada não afetam as outras</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Diagrama -->
+    <section class="panel" data-key="diagrama">
+      <div class="box">
+        <h3>Arquitetura MVC</h3>
+        <p class="note">Clique em cada camada para ver detalhes:</p>
+
+        <div class="mvc-diagram">
+          <div class="mvc-layer view" data-layer="view">
+            <h4>🖥️ View</h4>
+            <p class="note">Interface (FXML)</p>
+          </div>
+          <div class="mvc-arrow">⟷</div>
+          <div class="mvc-layer selected" data-layer="controller">
+            <h4>⚙️ Controller</h4>
+            <p class="note">Mediador</p>
+          </div>
+          <div class="mvc-arrow">⟷</div>
+          <div class="mvc-layer model" data-layer="model">
+            <h4>📦 Model</h4>
+            <p class="note">Dados/Lógica</p>
+          </div>
+        </div>
+
+        <div class="layer-detail" id="layer-detail">
+          <h4>Controller — Responsabilidades:</h4>
+          <ul>
+            <li>Receber eventos da View (cliques, inputs)</li>
+            <li>Validar dados de entrada</li>
+            <li>Chamar métodos do Model/Service</li>
+            <li>Atualizar a View com resultados</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Código -->
+    <section class="panel" data-key="codigo">
+      <div class="box">
+        <h3>Exemplo de Controller JavaFX</h3>
+
+        <pre><span class="kw">public class</span> <span class="ty">AlunoController</span> {
+    
+    <span class="ann">@FXML</span> <span class="kw">private</span> <span class="ty">TextField</span> txtNome;
+    <span class="ann">@FXML</span> <span class="kw">private</span> <span class="ty">TextField</span> txtEmail;
+    <span class="ann">@FXML</span> <span class="kw">private</span> <span class="ty">TableView</span>&lt;<span class="ty">Aluno</span>&gt; tabela;
+    
+    <span class="kw">private</span> <span class="ty">AlunoService</span> service = <span class="kw">new</span> <span class="ty">AlunoService</span>();
+    
+    <span class="ann">@FXML</span>
+    <span class="kw">public void</span> <span class="fn">salvar</span>() {
+        <span class="cm">// 1. Obter dados da View</span>
+        <span class="ty">String</span> nome = txtNome.<span class="fn">getText</span>();
+        <span class="ty">String</span> email = txtEmail.<span class="fn">getText</span>();
+        
+        <span class="cm">// 2. Validar</span>
+        <span class="kw">if</span> (nome.<span class="fn">isEmpty</span>()) {
+            <span class="fn">exibirErro</span>(<span class="str">"Nome obrigatório!"</span>);
+            <span class="kw">return</span>;
+        }
+        
+        <span class="cm">// 3. Criar Model e chamar Service</span>
+        <span class="ty">Aluno</span> aluno = <span class="kw">new</span> <span class="ty">Aluno</span>(nome, email);
+        service.<span class="fn">salvar</span>(aluno);
+        
+        <span class="cm">// 4. Atualizar View</span>
+        <span class="fn">atualizarTabela</span>();
+        <span class="fn">limparFormulario</span>();
+    }
+}</pre>
+
+        <div class="box" style="background:#fffbeb;border-color:#f59e0b;">
+          <strong>💡 @FXML</strong> — Anotação que vincula atributos Java a elementos do FXML
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Padrão Controller</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Diagrama
+    const layerDetails = {
+      view: `<h4>View — Interface Gráfica:</h4>
+                   <ul><li>Arquivos FXML (layout)</li><li>Exibe dados para o usuário</li><li>Captura eventos (cliques, digitação)</li><li>NÃO contém lógica de negócio</li></ul>`,
+      controller: `<h4>Controller — Mediador:</h4>
+                         <ul><li>Recebe eventos da View</li><li>Valida dados de entrada</li><li>Chama métodos do Model/Service</li><li>Atualiza a View com resultados</li></ul>`,
+      model: `<h4>Model — Dados e Lógica:</h4>
+                    <ul><li>Classes de domínio (Aluno, Livro)</li><li>Regras de negócio</li><li>Acesso a dados (via DAO)</li><li>Independente da interface</li></ul>`
+    };
+
+    document.querySelectorAll('.mvc-layer').forEach(layer => {
+      layer.addEventListener('click', () => {
+        document.querySelectorAll('.mvc-layer').forEach(l => l.classList.remove('selected'));
+        layer.classList.add('selected');
+        document.getElementById('layer-detail').innerHTML = layerDetails[layer.dataset.layer];
+      });
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'Qual camada recebe eventos de clique do usuário?', opts: ['Model', 'View', 'Controller'], ans: 2 },
+      { q: '@FXML serve para...', opts: ['Criar banco de dados', 'Vincular Java ao FXML', 'Definir estilos CSS'], ans: 1 },
+      { q: 'Regras de negócio devem ficar em qual camada?', opts: ['View', 'Controller', 'Model'], ans: 2 },
+      { q: 'O Controller NÃO deve...', opts: ['Validar entrada', 'Acessar BD diretamente', 'Atualizar a View'], ans: 1 },
+      { q: 'MVC significa...', opts: ['Model-View-Controller', 'Main-Value-Class', 'Method-Variable-Constant'], ans: 0 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+        fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

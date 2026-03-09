@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Práticas 4.7 — Multithreading com GUI</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --thread: #059669;
+            --bad: #dc2626;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #d1fae5;
+            border-color: var(--thread);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background: #d1fae5;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .feedback.ok {
+            color: var(--good);
+        }
+
+        .feedback.err {
+            color: var(--bad);
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        .kw {
+            color: #93c5fd;
+        }
+
+        .ty {
+            color: #fdba74;
+        }
+
+        .str {
+            color: #86efac;
+        }
+
+        .cm {
+            color: #94a3b8;
+        }
+
+        /* Demo boxes */
+        .demo-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .demo-box {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .demo-box.success {
+            border-color: var(--good);
+            background: rgba(22, 163, 74, 0.05);
+        }
+
+        .demo-box.failure {
+            border-color: var(--bad);
+            background: rgba(220, 38, 38, 0.05);
+        }
+
+        .demo-title {
+            font-weight: bold;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--thread);
+            width: 0%;
+            transition: width 0.1s;
+        }
+
+        .progress-fill.broken {
+            background: var(--bad);
+        }
+
+        .status-label {
+            font-size: 0.9rem;
+            color: var(--muted);
+            margin: 8px 0;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Práticas 4.7 — Multithreading com GUI (Platform.runLater)</h2>
+
+        <div class="tabs">
+            <button class="tab active" data-key="problema">O Problema</button>
+            <button class="tab" data-key="solucao">A Solução</button>
+            <button class="tab" data-key="demo">Demonstração</button>
+            <button class="tab" data-key="codigo">Código Java</button>
+            <button class="tab" data-key="quiz">Quiz</button>
+        </div>
+
+        <!-- O Problema -->
+        <section class="panel active" data-key="problema">
+            <div class="box">
+                <h3>O Problema: Atualizando GUI de Threads Secundárias</h3>
+
+                <p>Em JavaFX, existe uma thread especial chamada <strong>JavaFX Application Thread</strong> que é
+                    responsável por:</p>
+                <ul>
+                    <li>Renderizar todos os componentes visuais</li>
+                    <li>Processar eventos do usuário (cliques, teclas)</li>
+                    <li>Atualizar propriedades de componentes (texto, cor, etc.)</li>
+                </ul>
+
+                <div class="box" style="background:#fee2e2;border-color:var(--bad);">
+                    <strong>⚠️ Problema:</strong> Tentar atualizar componentes GUI de uma thread secundária causa:
+                    <ul>
+                        <li>IllegalStateException</li>
+                        <li>Componentes não atualizados</li>
+                        <li>Comportamento imprevisível</li>
+                    </ul>
+                </div>
+
+                <h4>Cenário típico:</h4>
+                <pre><span class="cm">// Thread secundária processando dados...</span>
+<span class="kw">new</span> <span class="ty">Thread</span>(() -> {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="str">0</span>; i <= <span class="str">100</span>; i++) {
+        <span class="ty">Thread</span>.<span class="fn">sleep</span>(<span class="str">50</span>);
+        
+        <span class="cm">// ❌ ERRADO! Atualiza GUI de thread secundária!</span>
+        progressBar.<span class="fn">setProgress</span>(i / <span class="str">100.0</span>);
+        label.<span class="fn">setText</span>(<span class="str">"Processando: "</span> + i + <span class="str">"%"</span>);
+    }
+}).<span class="fn">start</span>();</pre>
+            </div>
+        </section>
+
+        <!-- A Solução -->
+        <section class="panel" data-key="solucao">
+            <div class="box">
+                <h3>A Solução: Platform.runLater()</h3>
+
+                <p><code>Platform.runLater(Runnable r)</code> enfileira código para ser executado na JavaFX Application
+                    Thread.</p>
+
+                <h4>Código correto:</h4>
+                <pre><span class="kw">import</span> javafx.application.<span class="ty">Platform</span>;
+
+<span class="kw">new</span> <span class="ty">Thread</span>(() -> {
+    <span class="kw">for</span> (<span class="kw">int</span> i = <span class="str">0</span>; i <= <span class="str">100</span>; i++) {
+        <span class="ty">Thread</span>.<span class="fn">sleep</span>(<span class="str">50</span>);
+        
+        <span class="kw">final int</span> progresso = i;
+        
+        <span class="cm">// ✅ CORRETO! Usa Platform.runLater()</span>
+        <span class="ty">Platform</span>.<span class="fn">runLater</span>(() -> {
+            progressBar.<span class="fn">setProgress</span>(progresso / <span class="str">100.0</span>);
+            label.<span class="fn">setText</span>(<span class="str">"Processando: "</span> + progresso + <span class="str">"%"</span>);
+        });
+    }
+}).<span class="fn">start</span>();</pre>
+
+                <div class="box" style="background:#d1fae5;border-color:var(--thread);">
+                    <strong>💡 Por que funciona?</strong><br>
+                    Platform.runLater() agenda a atualização para ser executada pela JavaFX Application Thread quando
+                    ela estiver disponível.
+                </div>
+            </div>
+        </section>
+
+        <!-- Demonstração -->
+        <section class="panel" data-key="demo">
+            <div class="box">
+                <h3>Demonstração: Com vs Sem Platform.runLater()</h3>
+                <p class="note">Clique nos botões para ver a diferença de comportamento:</p>
+
+                <div class="demo-container">
+                    <div class="demo-box failure">
+                        <div class="demo-title">❌ SEM Platform.runLater()</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill broken" id="progress-bad"></div>
+                        </div>
+                        <div class="status-label" id="status-bad">Aguardando...</div>
+                        <button class="btn" id="btn-bad">Iniciar (Errado)</button>
+                        <p class="note">A barra não atualiza suavemente. Pode travar ou pular valores.</p>
+                    </div>
+
+                    <div class="demo-box success">
+                        <div class="demo-title">✅ COM Platform.runLater()</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="progress-good"></div>
+                        </div>
+                        <div class="status-label" id="status-good">Aguardando...</div>
+                        <button class="btn" id="btn-good">Iniciar (Correto)</button>
+                        <p class="note">A barra atualiza suavemente a cada passo.</p>
+                    </div>
+                </div>
+
+                <button class="btn" id="btn-reset">🔄 Resetar</button>
+            </div>
+        </section>
+
+        <!-- Código Java -->
+        <section class="panel" data-key="codigo">
+            <div class="box">
+                <h3>Exemplo Completo em JavaFX</h3>
+
+                <pre><span class="kw">import</span> javafx.application.<span class="ty">Application</span>;
+<span class="kw">import</span> javafx.application.<span class="ty">Platform</span>;
+<span class="kw">import</span> javafx.scene.<span class="ty">Scene</span>;
+<span class="kw">import</span> javafx.scene.control.*;
+<span class="kw">import</span> javafx.scene.layout.<span class="ty">VBox</span>;
+<span class="kw">import</span> javafx.stage.<span class="ty">Stage</span>;
+
+<span class="kw">public class</span> <span class="ty">ExemploRunLater</span> <span class="kw">extends</span> <span class="ty">Application</span> {
+    
+    <span class="kw">private</span> <span class="ty">Label</span> label;
+    <span class="kw">private</span> <span class="ty">ProgressBar</span> progressBar;
+    
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> <span class="fn">start</span>(<span class="ty">Stage</span> stage) {
+        label = <span class="kw">new</span> <span class="ty">Label</span>(<span class="str">"Aguardando..."</span>);
+        progressBar = <span class="kw">new</span> <span class="ty">ProgressBar</span>(<span class="str">0</span>);
+        <span class="ty">Button</span> btn = <span class="kw">new</span> <span class="ty">Button</span>(<span class="str">"Iniciar"</span>);
+        
+        btn.<span class="fn">setOnAction</span>(e -> iniciarProcessamento());
+        
+        <span class="ty">VBox</span> root = <span class="kw">new</span> <span class="ty">VBox</span>(<span class="str">10</span>, label, progressBar, btn);
+        stage.<span class="fn">setScene</span>(<span class="kw">new</span> <span class="ty">Scene</span>(root, <span class="str">300</span>, <span class="str">150</span>));
+        stage.<span class="fn">show</span>();
+    }
+    
+    <span class="kw">private void</span> <span class="fn">iniciarProcessamento</span>() {
+        <span class="kw">new</span> <span class="ty">Thread</span>(() -> {
+            <span class="kw">for</span> (<span class="kw">int</span> i = <span class="str">0</span>; i <= <span class="str">100</span>; i++) {
+                <span class="kw">try</span> {
+                    <span class="ty">Thread</span>.<span class="fn">sleep</span>(<span class="str">50</span>);
+                } <span class="kw">catch</span> (<span class="ty">InterruptedException</span> ex) {}
+                
+                <span class="kw">final int</span> progresso = i;
+                
+                <span class="cm">// Atualiza GUI de forma segura</span>
+                <span class="ty">Platform</span>.<span class="fn">runLater</span>(() -> {
+                    label.<span class="fn">setText</span>(<span class="str">"Processando: "</span> + progresso + <span class="str">"%"</span>);
+                    progressBar.<span class="fn">setProgress</span>(progresso / <span class="str">100.0</span>);
+                });
+            }
+        }).<span class="fn">start</span>();
+    }
+}</pre>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="panel" data-key="quiz">
+            <div class="box">
+                <h3>Quiz — Platform.runLater()</h3>
+                <div id="quiz-items"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tabs
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const btn = e.target.closest('.tab'); if (!btn) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+        });
+
+        // Demo simulation
+        document.getElementById('btn-bad').addEventListener('click', () => {
+            const progress = document.getElementById('progress-bad');
+            const status = document.getElementById('status-bad');
+
+            // Simula comportamento quebrado (pula direto para o fim)
+            status.textContent = 'Processando...';
+            setTimeout(() => {
+                // Mostra apenas alguns frames para simular freeze
+                progress.style.width = '30%';
+                status.textContent = 'Processando: 30%';
+            }, 200);
+            setTimeout(() => {
+                progress.style.width = '70%';
+                status.textContent = 'Processando: 70%';
+            }, 800);
+            setTimeout(() => {
+                progress.style.width = '100%';
+                status.textContent = 'Concluído! (mas comportamento irregular)';
+            }, 1500);
+        });
+
+        document.getElementById('btn-good').addEventListener('click', () => {
+            const progress = document.getElementById('progress-good');
+            const status = document.getElementById('status-good');
+
+            let i = 0;
+            const interval = setInterval(() => {
+                i += 2;
+                progress.style.width = i + '%';
+                status.textContent = 'Processando: ' + i + '%';
+                if (i >= 100) {
+                    clearInterval(interval);
+                    status.textContent = 'Concluído! ✅';
+                }
+            }, 50);
+        });
+
+        document.getElementById('btn-reset').addEventListener('click', () => {
+            document.getElementById('progress-bad').style.width = '0%';
+            document.getElementById('progress-good').style.width = '0%';
+            document.getElementById('status-bad').textContent = 'Aguardando...';
+            document.getElementById('status-good').textContent = 'Aguardando...';
+        });
+
+        // Quiz
+        const quizzes = [
+            { q: 'Platform.runLater() serve para...', opts: ['Pausar a thread', 'Enfileirar código para a JavaFX Application Thread', 'Criar novas threads'], ans: 1 },
+            { q: 'Atualizar GUI de thread secundária sem Platform.runLater() pode causar...', opts: ['Nada, funciona normal', 'IllegalStateException ou comportamento inesperado', 'Apenas warnings'], ans: 1 },
+            { q: 'A JavaFX Application Thread é responsável por...', opts: ['Cálculos matemáticos', 'Renderizar e atualizar componentes da GUI', 'Acessar banco de dados'], ans: 1 },
+            { q: 'O argumento de Platform.runLater() é...', opts: ['Uma String', 'Um Runnable (ou lambda)', 'Um int'], ans: 1 },
+            { q: 'Qual import é necessário para usar Platform.runLater()?', opts: ['java.util.Platform', 'javafx.application.Platform', 'java.lang.Platform'], ans: 1 }
+        ];
+
+        document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+        document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+                const fb = document.getElementById(`qfb-${qi}`);
+                fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+                fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+            });
+        });
+    </script>
+</body>
+
+</html>

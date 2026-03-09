@@ -1,0 +1,263 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Estudo de Caso 1 — Abertura e Primeiros Passos</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --accent: #2563eb;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.4rem;
+      color: var(--accent);
+    }
+
+    h3 {
+      margin: 20px 0 10px;
+      font-size: 1.1rem;
+      color: #111827;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 5px;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      background: var(--surface);
+      margin: 16px 0;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 20px;
+      background: #f8fafc;
+      padding: 14px;
+      border-radius: 8px;
+      border-left: 4px solid var(--accent);
+    }
+
+    .step-num {
+      background: var(--accent);
+      color: white;
+      border-radius: 50%;
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+
+    .step-content strong {
+      font-size: 1.05rem;
+      color: var(--text);
+    }
+
+    .tool-tag {
+      background: #e0e7ff;
+      color: #3730a3;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .step-content p {
+      margin: 8px 0 0;
+      color: #4b5563;
+      line-height: 1.5;
+    }
+
+    .step-content ul {
+      margin: 8px 0 0 20px;
+      color: #4b5563;
+      padding: 0;
+    }
+
+    .case-study {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 20px;
+      margin-top: 20px;
+    }
+
+    .case-study h3 {
+      color: #1e3a8a;
+      border-bottom-color: #bfdbfe;
+      margin-top: 0;
+    }
+
+    .case-study p,
+    .case-study ul {
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Estudo de Caso 1 — Abertura, Tema e Persona</h2>
+
+    <div class="box">
+      <h3>Objetivo da Semana</h3>
+      <p>Formar a equipe de projeto (se necessário), alinhar os interesses, definir o <strong>Tema do
+          Aplicativo</strong> com sua devida justificativa e elaborar a <strong>Persona</strong> do seu produto. Esse
+        será o ponto de partida para todo o desenvolvimento nas próximas semanas.</p>
+    </div>
+
+    <div class="box">
+      <h3>Passo a Passo da Atividade</h3>
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <strong>Formem o Grupo de Trabalho</strong> <span class="tool-tag">Miro / Discord / WhatsApp</span>
+          <p>Os grupos deverão ser formados por três alunos. Reúnam-se e alinhem com a filosofia de Extreme Programming
+            (XP). Nessa dinâmica, não existem papéis específicos para os integrantes: todos trabalham juntos em todas as
+            tarefas do projeto. A ideia é que cada aluno atue ativamente no desenvolvimento tendo a IA como seu par,
+            deixando claro que a inteligência artificial serve como um auxílio constante ao longo de todo o processo.
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <strong>Debatam e escolham o Tema e o Nome</strong> <span class="tool-tag">ChatGPT / Claude</span>
+          <p>Discutam ideias de aplicativos. Escolham um tema viável, que resolva um problema real e seja passível de
+            ser concluído usando FlutterFlow e Firebase em 16 semanas. O nome deve ser curto, fácil de lembrar e que
+            remeta ao propósito do app.</p>
+          <p>Para manter a complexidade adequada e uniforme entre os grupos, o aplicativo de vocês deverá gerenciar três
+            <strong>tipos principais de informação</strong>, além do cadastro de usuários. Pense nisso como os três
+            "cadastros principais" ou "conceitos" que vão virar tabelas ou coleções no banco de dados futuramente. Veja
+            10 exemplos abaixo (onde c1, c2 e c3 são esses três principais itens que o app vai gerenciar):
+          </p>
+          <ul>
+            <li><strong>App de Tarefas:</strong> Gerenciamento de rotina pessoal (c1: tarefas; c2: projetos; c3:
+              etiquetas/categorias).</li>
+            <li><strong>App de Biblioteca Pessoal:</strong> Organização das próprias leituras (c1: livros; c2: autores;
+              c3: resenhas/anotações).</li>
+            <li><strong>App de Receitas:</strong> Caderno virtual de receitas do usuário (c1: receitas; c2:
+              ingredientes; c3: categorias de pratos).</li>
+            <li><strong>App de Estudos:</strong> Organização do próprio aprendizado (c1: disciplinas; c2: tópicos de
+              revisão; c3: sessões de estudo).</li>
+            <li><strong>App Diário de Viagens:</strong> Registro dos locais visitados pelo usuário (c1: viagens; c2:
+              locais visitados; c3: fotos/lembranças).</li>
+            <li><strong>App de Coleções:</strong> Gestão de itens de hobby, como moedas ou selos (c1: itens
+              colecionáveis; c2: categorias/séries; c3: histórico de aquisições).</li>
+            <li><strong>App de Hábitos:</strong> Monitoramento da própria rotina de vida (c1: hábitos; c2: registros
+              diários; c3: recompensas pessoais).</li>
+            <li><strong>App de Manutenção Veicular:</strong> Controle de gastos do próprio carro (c1: veículos; c2:
+              manutenções/serviços; c3: abastecimentos).</li>
+            <li><strong>App de Plantas (Jardinagem):</strong> Controle de cuidados com as plantas de casa (c1: plantas;
+              c2: espécies; c3: registros de rega/adubação).</li>
+            <li><strong>App Diário de Treinos:</strong> Registro individual de exercícios e resultados (c1: treinos; c2:
+              exercícios realizados; c3: métricas corporais/peso).</li>
+          </ul>
+          <p><em>Exemplo de Prompt: "Sou estudante universitário e preciso criar um aplicativo mobile com FlutterFlow e
+              Firebase em 16 semanas. O app deve resolver um problema real..."</em></p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <strong>Justifiquem o Problema Escolhido</strong>
+          <p>Qual dor o aplicativo pretende resolver? Por que esse problema é relevante? Registrem essas justificativas
+            formalmente.</p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <strong>Definam o Público-Alvo e a Persona</strong> <span class="tool-tag">Word / Google Docs</span>
+          <p>Descrevam detalhadamente quem usará o app. Crie a Persona contendo: nome, perfil, idade, profissão, seus
+            objetivos principais e suas frustrações. O documento final deverá reunir as respostas de todos esses passos.
+          </p>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">📄</div>
+        <div class="step-content">
+          <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+          <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos passos
+            anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a sua conta Google e
+            compartilhe-o com o professor.</p>
+          <p><a href="https://docs.google.com/document/d/1zIZK6Cvp9F_YBSyeUm9xJvi4L8siX3rInlaZ-Ocw5A8/edit?usp=sharing"
+              target="_blank" style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+              Documento de Abertura, Tema e Persona</a></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="case-study">
+      <h3>📱 Estudo de Caso: FinanCampus</h3>
+      <p>Veja como um grupo de exemplo realizou as atividades desta semana para o app
+        <strong>FinanCampus</strong> — um aplicativo de controle financeiro para universitários.
+      </p>
+
+      <p><strong>Nome do App:</strong> FinanCampus</p>
+
+      <p><strong>Desenvolvedora (Piloto) e IA (Co-Piloto):</strong></p>
+      <ul>
+        <li><strong>Ana</strong> — Responsável por decidir o escopo, arquitetura principal no
+          FlutterFlow, segurança do Firebase e testar o incremento semanal.</li>
+        <li><strong>Assistente de IA</strong> — Auxilia formulando ideias de interface, gerando
+          nomes e validando lógicas de negócios e de bancos de dados NoSQL.</li>
+      </ul>
+
+      <p><strong>Tema escolhido:</strong> Controle financeiro pessoal para estudantes
+        universitários. O app permite registrar transações financeiras (rendas e despesas),
+        categorizar gastos, definir metas de economia
+        e visualizar o saldo mensal de forma simples e visual.</p>
+      <p><strong>Tipos principais de informação (além de usuários):</strong> transações, categorias e metas (estes
+        seriam os conceitos c1, c2 e c3 do app).</p>
+
+      <p><strong>Justificativa:</strong> "Percebemos que a maioria dos estudantes do nosso
+        campus não sabe exatamente para onde vai seu dinheiro. Planilhas são complicadas
+        e apps bancários são genéricos demais."</p>
+
+      <p><strong>Persona — Mariana, 22 anos:</strong> universitária de Administração,
+        trabalha meio período. Objetivo: economizar R$1.500 até o final do semestre para
+        uma viagem. Frustração: perde o controle dos gastos no "rolezinho" do final de
+        semana. Tecnologia: usa smartphone 6h/dia, prefere apps simples e com gráficos.</p>
+    </div>
+  </main>
+</body>
+
+</html>

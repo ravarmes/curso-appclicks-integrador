@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 8 — Identidade Visual e Multimídia</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 8 — Identidade Visual e Temas</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Dar forma, cor e uma "cara profissional" ao seu MVP. Construir seu Brand Board (logotipo, tipografia,
+                paleta e fundo), garantindo que as definições propostas gerem padronização visual dentro do FlutterFlow
+                (aplicação de estilos no App Theme).</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Determine a Paleta de Cores e a Tipografia</strong> <span class="tool-tag">ChatGPT /
+                        Claude</span>
+                    <p>Peça ideias para paletas de cores baseadas nas emoções e na psicologia que a persona desenhada
+                        necessita. Escolha a cor principal, a secundária e as de 'sucesso/falha'. Escolha tipografias
+                        complementares.</p>
+                    <p><em>Exemplo de Prompt: "Atuando como Designer Visual, sugira 3 combinações distintas de paleta de
+                            cores e uma tipografia ideal para um app sobre finanças..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Gere o Logotipo e o Ícone</strong> <span class="tool-tag">Gemini / Midjourney / Canva</span>
+                    <p>Façam rascunhos criativos de logo e ícone para sua aplicação. Caso queira, passe prompts
+                        detalhados sobre as cores encontradas na Atividade 1 em uma IA para gerar uma versão inicial e
+                        passe-a para o Canva.</p>
+                    <p><em>Exemplo de Prompt: "Crie um ícone para um aplicativo mobile. O ícone deve ser simples e
+                            plano. Use cores Azul e Verde no fundo..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Configure o "App Theme"</strong> <span class="tool-tag">FlutterFlow (Theme Settings)</span>
+                    <p>Vincule todas essas configurações diretamente no Painel Theme Settings. Padronize as paletas,
+                        ajuste as telas que estiverem divergentes e deixe o aplicativo robusto. Suba a imagem do Logo e
+                        o ícone.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-content">
+                    <strong>Construa o Painel e Documente</strong>
+                    <p>Cole no entregável um Brand Board mostrando Logo, as 5 Cores Principais em Hexadecimal e Títulos
+                        usando a Fonte Principal (Mostrando o Estilo visual na prática).</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/1t8YnOzzHIdx8eJPJpH_6YvZDbPqFs5_Nt1Jbf8ROmvQ/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Brand Board e Identidade Visual</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja as decisões de identidade visual que o grupo do <strong>FinanCampus</strong> tomou nesta semana.</p>
+
+            <img src="../images/fig_brand_mockup.png" class="img-fluid" alt="Brand Board FinanCampus">
+            <br /><br />
+
+            <p><strong>Paleta de cores:</strong></p>
+            <ul>
+                <li>Primária: <strong>#2D6AF6</strong> (azul universitário — confiança e tecnologia)</li>
+                <li>Acento / destaque: <strong>#4CAF50</strong> (verde — para rendas e saldos positivos)</li>
+                <li>Alerta: <strong>#F44336</strong> (vermelho — para despesas e saldo negativo)</li>
+                <li>Fundo: <strong>#F5F7FA</strong> (cinza claro suave)</li>
+                <li>Texto principal: <strong>#1A1A2E</strong> (azul escuro — alto contraste)</li>
+            </ul>
+            <p><strong>Tipografia:</strong> <em>Poppins</em> para títulos (Bold 700) e
+                <em>Inter</em> para corpo do texto (Regular 400). Ambas do Google Fonts,
+                disponíveis nativamente no FlutterFlow.
+            </p>
+            <p><strong>Logotipo:</strong> símbolo de cifrão estilizado dentro de um círculo
+                azul, com o nome "FinanCampus" ao lado em Poppins Bold. Criado no Canva
+                e exportado em PNG 512×512px.</p>
+            <p><strong>Splash screen:</strong> fundo <strong>#2D6AF6</strong> com o logotipo
+                centralizado em branco. Configurado em <em>Theme → Launch Screen</em>
+                no FlutterFlow.</p>
+        </div>
+    </main>
+</body>
+
+</html>

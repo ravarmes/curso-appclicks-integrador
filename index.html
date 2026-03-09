@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Projeto Integrador — Curso App Clicks</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- Layout principal: sidebar à esquerda + conteúdo à direita -->
+  <div id="layout" class="layout">
+    <!-- Barra lateral com capítulos -->
+    <aside id="sidebar" class="sidebar" aria-label="Navegação do curso">
+      <div class="brand">
+        <h1 class="brand-title">Projeto Integrador</h1>
+        <p class="brand-subtitle">Curso App Clicks — 16 semanas</p>
+      </div>
+      <!-- A lista é gerada dinamicamente pelo script-poo2.js -->
+      <nav class="chapters" aria-label="Capítulos">
+        <ul id="chapter-list"></ul>
+      </nav>
+      <!-- Capa do livro -->
+      <div class="book-cover">
+        <img class="zoomable-img" src="infograficos/capa.png" alt="Capa do Curso - Projeto Integrador App Clicks" />
+        <p class="copyright">© 2026 Rafael Vargas Mesquita.</p>
+        <p class="install-link"><a href="#cap-1">Início</a></p>
+      </div>
+    </aside>
+
+    <!-- Área principal para o conteúdo selecionado -->
+    <main id="main" class="main" tabindex="-1">
+      <header class="topbar">
+        <!-- Botão para abrir/fechar a sidebar em telas pequenas -->
+        <button id="menu-btn" class="menu-btn" aria-controls="sidebar" aria-expanded="false">☰ Capítulos</button>
+        <!-- Botão para esconder/mostrar a barra lateral (desktop e mobile) -->
+        <button id="collapse-sidebar-btn" class="collapse-btn" aria-controls="sidebar" aria-expanded="true">Esconder
+          barra</button>
+        <h2 id="chapter-title" class="chapter-title">Selecione um capítulo</h2>
+      </header>
+
+      <!-- Conteúdo dinâmico do capítulo (abas: Infográficos | Conteúdos | Slides | Podcasts | Vídeos | Práticas) -->
+      <article id="content" class="content" aria-live="polite"></article>
+    </main>
+  </div>
+
+  <!-- Lógica de navegação e renderização -->
+  <script src="script-poo2.js"></script>
+</body>
+
+</html>

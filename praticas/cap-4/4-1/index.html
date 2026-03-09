@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Práticas 4.1 — Criando Threads</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --thread: #059669;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #d1fae5;
+            border-color: var(--thread);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background: #d1fae5;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .feedback.ok {
+            color: var(--good);
+        }
+
+        .feedback.err {
+            color: #dc2626;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        .kw {
+            color: #93c5fd;
+        }
+
+        .ty {
+            color: #fdba74;
+        }
+
+        .str {
+            color: #86efac;
+        }
+
+        .cm {
+            color: #94a3b8;
+        }
+
+        .ann {
+            color: #c4b5fd;
+        }
+
+        /* Comparison */
+        .compare-card {
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .compare-card.extends {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .compare-card.implements {
+            border-color: var(--thread);
+            background: #ecfdf5;
+        }
+
+        .compare-card h4 {
+            margin: 0 0 12px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border);
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f5f9;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Práticas 4.1 — Criando Threads em Java</h2>
+
+        <div class="tabs">
+            <button class="tab active" data-key="conceito">Conceito</button>
+            <button class="tab" data-key="comparacao">extends vs implements</button>
+            <button class="tab" data-key="codigo">Código</button>
+            <button class="tab" data-key="quiz">Quiz</button>
+        </div>
+
+        <!-- Conceito -->
+        <section class="panel active" data-key="conceito">
+            <div class="box">
+                <h3>O que é uma Thread?</h3>
+                <p>Uma <strong>Thread</strong> é uma unidade de execução dentro de um processo.
+                    Em Java, podemos criar threads de duas formas principais.</p>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Conceito</th>
+                            <th>Descrição</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Processo</strong></td>
+                            <td>Programa em execução (JVM)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Thread</strong></td>
+                            <td>Fluxo de execução dentro do processo</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Main Thread</strong></td>
+                            <td>Thread principal, executa o main()</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Multithreading</strong></td>
+                            <td>Múltiplas threads executando em paralelo</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Por que usar Threads?</h4>
+                <ul>
+                    <li>✅ <strong>Responsividade</strong> — UI não trava durante operações longas</li>
+                    <li>✅ <strong>Performance</strong> — Aproveita múltiplos núcleos da CPU</li>
+                    <li>✅ <strong>Concorrência</strong> — Múltiplas tarefas simultâneas</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Comparação -->
+        <section class="panel" data-key="comparacao">
+            <div class="box">
+                <h3>Duas Formas de Criar Threads</h3>
+
+                <div class="grid">
+                    <div class="compare-card extends">
+                        <h4>1. extends Thread</h4>
+                        <pre><span class="kw">class</span> <span class="ty">MinhaThread</span> <span class="kw">extends</span> <span class="ty">Thread</span> {
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> <span class="fn">run</span>() {
+        System.out.<span class="fn">println</span>(<span class="str">"Executando!"</span>);
+    }
+}
+
+<span class="cm">// Uso:</span>
+<span class="ty">MinhaThread</span> t = <span class="kw">new</span> <span class="ty">MinhaThread</span>();
+t.<span class="fn">start</span>();</pre>
+                        <ul class="note">
+                            <li>✅ Simples de usar</li>
+                            <li>❌ Não pode herdar de outra classe</li>
+                        </ul>
+                    </div>
+                    <div class="compare-card implements">
+                        <h4>2. implements Runnable</h4>
+                        <pre><span class="kw">class</span> <span class="ty">MinhaTarefa</span> <span class="kw">implements</span> <span class="ty">Runnable</span> {
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> <span class="fn">run</span>() {
+        System.out.<span class="fn">println</span>(<span class="str">"Executando!"</span>);
+    }
+}
+
+<span class="cm">// Uso:</span>
+<span class="ty">Thread</span> t = <span class="kw">new</span> <span class="ty">Thread</span>(<span class="kw">new</span> <span class="ty">MinhaTarefa</span>());
+t.<span class="fn">start</span>();</pre>
+                        <ul class="note">
+                            <li>✅ Pode herdar de outra classe</li>
+                            <li>✅ Mais flexível (recomendado)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="box" style="background:#fffbeb;border-color:#f59e0b;margin-top:16px;">
+                    <strong>💡 Recomendação:</strong> Use <code>implements Runnable</code> na maioria dos casos,
+                    pois permite herança de outras classes.
+                </div>
+            </div>
+        </section>
+
+        <!-- Código -->
+        <section class="panel" data-key="codigo">
+            <div class="box">
+                <h3>Exemplo Completo com Lambda</h3>
+
+                <pre><span class="kw">public class</span> <span class="ty">ExemploThreads</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        
+        <span class="cm">// Forma 1: Classe anônima</span>
+        <span class="ty">Thread</span> t1 = <span class="kw">new</span> <span class="ty">Thread</span>(<span class="kw">new</span> <span class="ty">Runnable</span>() {
+            <span class="kw">public void</span> <span class="fn">run</span>() {
+                System.out.<span class="fn">println</span>(<span class="str">"Thread 1"</span>);
+            }
+        });
+        
+        <span class="cm">// Forma 2: Lambda (recomendado)</span>
+        <span class="ty">Thread</span> t2 = <span class="kw">new</span> <span class="ty">Thread</span>(() -> {
+            System.out.<span class="fn">println</span>(<span class="str">"Thread 2"</span>);
+        });
+        
+        <span class="cm">// Forma 3: Lambda inline</span>
+        <span class="ty">Thread</span> t3 = <span class="kw">new</span> <span class="ty">Thread</span>(() -> System.out.<span class="fn">println</span>(<span class="str">"Thread 3"</span>));
+        
+        <span class="cm">// Iniciar as threads</span>
+        t1.<span class="fn">start</span>();  <span class="cm">// NÃO use run(), use start()!</span>
+        t2.<span class="fn">start</span>();
+        t3.<span class="fn">start</span>();
+    }
+}</pre>
+
+                <div class="box" style="background:#fee2e2;border-color:#dc2626;">
+                    <strong>⚠️ Atenção:</strong> Use <code>start()</code>, não <code>run()</code>!
+                    <br>O método <code>run()</code> executa na thread atual; <code>start()</code> cria uma nova thread.
+                </div>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="panel" data-key="quiz">
+            <div class="box">
+                <h3>Quiz — Criando Threads</h3>
+                <div id="quiz-items"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tabs
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const btn = e.target.closest('.tab'); if (!btn) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+        });
+
+        // Quiz
+        const quizzes = [
+            { q: 'Para iniciar uma thread, usamos...', opts: ['run()', 'start()', 'execute()'], ans: 1 },
+            { q: 'Runnable é uma...', opts: ['Classe abstrata', 'Interface', 'Annotation'], ans: 1 },
+            { q: 'Qual abordagem permite herdar de outra classe?', opts: ['extends Thread', 'implements Runnable', 'Ambas'], ans: 1 },
+            { q: 'O método que contém o código da thread é...', opts: ['main()', 'run()', 'execute()'], ans: 1 },
+            { q: 'Lambda () -> {...} substitui...', opts: ['extends Thread', 'new Runnable() {...}', 'synchronized'], ans: 1 }
+        ];
+
+        document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+        document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+                const fb = document.getElementById(`qfb-${qi}`);
+                fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+                fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+            });
+        });
+    </script>
+</body>
+
+</html>

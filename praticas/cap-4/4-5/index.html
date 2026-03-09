@@ -1,0 +1,387 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Práticas 4.5 — Sincronização de Threads</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --thread: #059669;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #d1fae5;
+            border-color: var(--thread);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background: #d1fae5;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .feedback.ok {
+            color: var(--good);
+        }
+
+        .feedback.err {
+            color: #dc2626;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        .kw {
+            color: #93c5fd;
+        }
+
+        .ty {
+            color: #fdba74;
+        }
+
+        .str {
+            color: #86efac;
+        }
+
+        .cm {
+            color: #94a3b8;
+        }
+
+        /* Race condition viz */
+        .race-demo {
+            display: flex;
+            gap: 20px;
+            padding: 20px;
+            background: #f8fafc;
+            border-radius: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .counter-box {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            min-width: 120px;
+        }
+
+        .counter-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--thread);
+        }
+
+        .thread-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Práticas 4.5 — Sincronização de Threads</h2>
+
+        <div class="tabs">
+            <button class="tab active" data-key="conceito">Conceito</button>
+            <button class="tab" data-key="race">Race Condition</button>
+            <button class="tab" data-key="synchronized">synchronized</button>
+            <button class="tab" data-key="waitnotify">wait/notify</button>
+            <button class="tab" data-key="quiz">Quiz</button>
+        </div>
+
+        <!-- Conceito -->
+        <section class="panel active" data-key="conceito">
+            <div class="box">
+                <h3>Por que sincronizar?</h3>
+                <p>Quando múltiplas threads acessam dados compartilhados, podem ocorrer <strong>condições de
+                        corrida</strong>.</p>
+
+                <div class="grid">
+                    <div>
+                        <h4>❌ Sem Sincronização:</h4>
+                        <pre><span class="cm">// Duas threads incrementando</span>
+<span class="kw">int</span> contador = <span class="str">0</span>;
+
+<span class="cm">// Thread A</span>
+contador++;  <span class="cm">// Lê 0, soma 1, escreve 1</span>
+
+<span class="cm">// Thread B (simultaneamente)</span>
+contador++;  <span class="cm">// Lê 0, soma 1, escreve 1</span>
+
+<span class="cm">// Resultado: 1 (deveria ser 2!)</span></pre>
+                    </div>
+                    <div>
+                        <h4>✅ Com synchronized:</h4>
+                        <pre><span class="kw">synchronized void</span> <span class="fn">incrementar</span>() {
+    contador++;
+}
+
+<span class="cm">// Agora apenas uma thread por vez</span>
+<span class="cm">// executa o método</span>
+
+<span class="cm">// Resultado: 2 (correto!)</span></pre>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Race Condition -->
+        <section class="panel" data-key="race">
+            <div class="box">
+                <h3>Simulação de Race Condition</h3>
+
+                <div class="race-demo">
+                    <div class="counter-box">
+                        <div>Contador</div>
+                        <div class="counter-value" id="counter">0</div>
+                    </div>
+                    <div class="thread-actions">
+                        <button class="btn" id="race-unsafe">❌ Incrementar SEM sync (10 threads)</button>
+                        <button class="btn" id="race-safe">✅ Incrementar COM sync (10 threads)</button>
+                        <button class="btn" id="race-reset">🔄 Reset</button>
+                    </div>
+                    <div>
+                        <p class="note">Clique várias vezes no botão "SEM sync" e observe valores inconsistentes.</p>
+                        <p class="note">Com "COM sync", o resultado é sempre previsível.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- synchronized -->
+        <section class="panel" data-key="synchronized">
+            <div class="box">
+                <h3>Usando synchronized</h3>
+
+                <h4>Método synchronized:</h4>
+                <pre><span class="kw">public synchronized void</span> <span class="fn">sacar</span>(<span class="kw">double</span> valor) {
+    <span class="kw">if</span> (saldo >= valor) {
+        saldo -= valor;
+    }
+}</pre>
+
+                <h4>Bloco synchronized:</h4>
+                <pre><span class="kw">public void</span> <span class="fn">transferir</span>(<span class="ty">Conta</span> destino, <span class="kw">double</span> valor) {
+    <span class="kw">synchronized</span>(this) {
+        <span class="kw">this</span>.saldo -= valor;
+    }
+    <span class="kw">synchronized</span>(destino) {
+        destino.saldo += valor;
+    }
+}</pre>
+
+                <div class="box" style="background:#d1fae5;border-color:var(--thread);">
+                    <strong>💡 Dica:</strong> O bloco synchronized permite sincronizar apenas a seção crítica, não o
+                    método inteiro.
+                </div>
+            </div>
+        </section>
+
+        <!-- wait/notify -->
+        <section class="panel" data-key="waitnotify">
+            <div class="box">
+                <h3>Comunicação entre Threads: wait() e notify()</h3>
+
+                <h4>Padrão Produtor/Consumidor:</h4>
+                <pre><span class="kw">class</span> <span class="ty">Buffer</span> {
+    <span class="kw">private</span> <span class="ty">String</span> dado;
+    <span class="kw">private boolean</span> disponivel = <span class="kw">false</span>;
+
+    <span class="kw">public synchronized void</span> <span class="fn">produzir</span>(<span class="ty">String</span> d) <span class="kw">throws</span> <span class="ty">InterruptedException</span> {
+        <span class="kw">while</span> (disponivel) {
+            <span class="fn">wait</span>();  <span class="cm">// Espera consumir</span>
+        }
+        dado = d;
+        disponivel = <span class="kw">true</span>;
+        <span class="fn">notifyAll</span>();  <span class="cm">// Avisa consumidores</span>
+    }
+
+    <span class="kw">public synchronized</span> <span class="ty">String</span> <span class="fn">consumir</span>() <span class="kw">throws</span> <span class="ty">InterruptedException</span> {
+        <span class="kw">while</span> (!disponivel) {
+            <span class="fn">wait</span>();  <span class="cm">// Espera produzir</span>
+        }
+        disponivel = <span class="kw">false</span>;
+        <span class="fn">notifyAll</span>();  <span class="cm">// Avisa produtores</span>
+        <span class="kw">return</span> dado;
+    }
+}</pre>
+
+                <h4>Métodos importantes:</h4>
+                <ul>
+                    <li><code>wait()</code> - libera o lock e espera ser notificado</li>
+                    <li><code>notify()</code> - acorda uma thread esperando</li>
+                    <li><code>notifyAll()</code> - acorda todas as threads esperando</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="panel" data-key="quiz">
+            <div class="box">
+                <h3>Quiz — Sincronização</h3>
+                <div id="quiz-items"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tabs
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const btn = e.target.closest('.tab'); if (!btn) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+        });
+
+        // Race condition demo
+        let counter = 0;
+
+        document.getElementById('race-unsafe').addEventListener('click', () => {
+            // Simula race condition com delays aleatórios
+            for (let i = 0; i < 10; i++) {
+                setTimeout(() => {
+                    const temp = counter;
+                    setTimeout(() => {
+                        counter = temp + 1;
+                        document.getElementById('counter').textContent = counter;
+                    }, Math.random() * 50);
+                }, Math.random() * 100);
+            }
+        });
+
+        document.getElementById('race-safe').addEventListener('click', () => {
+            // Simula synchronized (sequencial)
+            let promise = Promise.resolve();
+            for (let i = 0; i < 10; i++) {
+                promise = promise.then(() => {
+                    return new Promise(resolve => {
+                        setTimeout(() => {
+                            counter++;
+                            document.getElementById('counter').textContent = counter;
+                            resolve();
+                        }, 50);
+                    });
+                });
+            }
+        });
+
+        document.getElementById('race-reset').addEventListener('click', () => {
+            counter = 0;
+            document.getElementById('counter').textContent = '0';
+        });
+
+        // Quiz
+        const quizzes = [
+            { q: 'synchronized garante...', opts: ['Execução paralela', 'Exclusão mútua (uma thread por vez)', 'Maior velocidade'], ans: 1 },
+            { q: 'wait() deve ser chamado dentro de...', opts: ['Qualquer método', 'Um bloco synchronized', 'Um try-catch'], ans: 1 },
+            { q: 'notifyAll() acorda...', opts: ['Uma thread', 'Todas as threads esperando no monitor', 'Nenhuma thread'], ans: 1 },
+            { q: 'Race condition ocorre quando...', opts: ['Threads competem por velocidade', 'Múltiplas threads acessam dados compartilhados sem sincronização', 'Uma thread morre'], ans: 1 },
+            { q: 'O padrão Produtor/Consumidor usa...', opts: ['Apenas synchronized', 'synchronized + wait/notify', 'Apenas notify'], ans: 1 }
+        ];
+
+        document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+        document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+                const fb = document.getElementById(`qfb-${qi}`);
+                fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+                fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+            });
+        });
+    </script>
+</body>
+
+</html>

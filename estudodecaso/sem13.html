@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 13 — Segurança e Acessibilidade</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 13 — Legislação e Teste Alfa</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Gerar um crivo analítico quanto às normativas legais de mercado garantindo Segurança de Dados (LGPD) e
+                Acessibilidade Sensorial, disparando a primeira leva de pacotes de testes para validação na trilha Alfa
+                do Google Play App Store.</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Monte um Checklist Analítico a partir de Normativas</strong> <span class="tool-tag">ChatGPT
+                        / Claude</span>
+                    <p>Peça para sua IA sugerir uma lista de pontos vitais sobre Leis Gerais de Proteção a Dados (LGPD)
+                        e Padrões de Acessibilidade a serem observados dentro de ambientes corporativos mobile.</p>
+                    <p><em>Exemplo de Prompt: "Liste um checklist prático com os 5 principais erros de acessibilidade
+                            estrutural e visual cometidos em aplicativos mobile. Foque em aspectos tangíveis de cores,
+                            alinhamentos e formulários..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Faça a Inspeção no App Ativo</strong> <span class="tool-tag">FlutterFlow Viewer</span>
+                    <p>Com a lista em mãos, cruze seu App gerando o documento listando: Onde ele fere a regulação visual
+                        (ex: textos de 12sp difíceis de ler)? Onde a coleta e armazenamento de e-mail de usuários
+                        estaria infringindo a finalidade se não houvesse o Termo de Aceite?</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Publique na Trilha Alfa e Capture</strong> <span class="tool-tag">Google Play Console</span>
+                    <p>Com ajuda do Professor (se necessário o uso de uma conta global da Instituição), suba o Build nas
+                        trilhas de Testing da Play Store para convidar sua equipe inteira para receber e testar com
+                        sucesso pela primeira vez a versão empacotada no celular Real.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/1P4AoBzjqRpXRu1Ocg4S7Wkxo4njmM0oT6IYhDR5Phr0/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Auditoria Final de Segurança, LGPD e Acessibilidade</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja as verificações de segurança e acessibilidade do <strong>FinanCampus</strong>.</p>
+
+            <img src="../images/fig_lgpd_mockup.png" class="img-fluid" alt="Checklist Resumo de Segurança">
+            <br /><br />
+
+            <p><strong>Checklist de segurança (todos verificados):</strong></p>
+            <ul>
+                <li>✅ Senhas armazenadas com bcrypt (Firebase Auth gerencia automaticamente)</li>
+                <li>✅ API Key <em>anon</em> usada no app; <em>service role key</em> não exposta</li>
+                <li>✅ Security Rules ativas em todas as coleções com dados de usuários</li>
+                <li>✅ HTTPS em todas as chamadas (Firebase por padrão)</li>
+                <li>✅ Política de privacidade LGPD publicada</li>
+            </ul>
+            <p><strong>Checklist de acessibilidade:</strong></p>
+            <ul>
+                <li>✅ Contraste texto/fundo: ratio 7.2:1 (acima do mínimo 4.5:1)</li>
+                <li>✅ Fonte mínima de 14sp em todos os textos do app</li>
+                <li>✅ Botão (+) com área de toque de 56×56 dp</li>
+                <li>⚠️ Ícones de categoria sem rótulos alternativos (ajuste planejado para v1.1)</li>
+            </ul>
+            <p><strong>App publicado no Teste Interno</strong> com 4 testadores
+                (os próprios membros do grupo). APK instalado via Play Console e
+                2 bugs de usabilidade identificados e corrigidos, reportados adequadamente nos Relatórios em Grupo.</p>
+        </div>
+    </main>
+</body>
+
+</html>

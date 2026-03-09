@@ -1,0 +1,232 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 11 — Notificações Push</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 11 — Notificações e Requisitos</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Verificar contra os Requisitos da Semana 2 se os entregáveis se encontram finalizados e operacionais (O
+                Mínimo Produto Viável foi implementado?). Após validação, inserir gatilhos de engajamento ao seu usuário
+                via Push Notification do Firebase.</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Preencha o Checklist Consolidado com Status de Progresso</strong> <span
+                        class="tool-tag">Excel / Docs</span>
+                    <p>Monte o quadro de funcionalidades da primeira fase comparando aquilo que prometeram lá no RF01,
+                        RF02, com seus status: Implementado, Parcial ou Pendente.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Pense Estrategicamente em Engajar com Notificações</strong> <span class="tool-tag">ChatGPT /
+                        Claude</span>
+                    <p>Mapeie lugares adequados no Fluxo do app (ex: Ao fechar uma tarefa? Ao atingir um ponto negativo
+                        ou de ganho de sistema?) nos quais você pode enviar lembretes a tela inicial do celular da
+                        pessoa.</p>
+                    <p><em>Exemplo de Prompt: "Para um aplicativo de [descrição do app], sugira três situações de alto
+                            valor (gatilhos) em que o envio de uma Notificação Push seria útil e engajador..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Codifique o Alerta</strong> <span class="tool-tag">FlutterFlow (Actions -> Trigger Push
+                        Notification)</span>
+                    <p>Insira a inteligência nas Correntes de Ações (Action Chains) de seu botão, e dispare um alerta
+                        para ele (Ex: Trigger Local Push Notification), validando-o em seguida no Testing Device ou Web
+                        Run.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/1DItV_G6SbKoxGpQ9ktlZht5zFVgJ-pY8OCNjH9po_yk/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Checklist Consolidado: Progresso dos Requisitos e Push Notifications</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja o checklist de requisitos e as funcionalidades avançadas do <strong>FinanCampus</strong>.</p>
+
+            <img src="../images/fig_push_mockup.png" class="img-fluid" alt="Push Notification Preview">
+            <br /><br />
+
+            <p><strong>Checklist de requisitos (7/8 RFs implementados):</strong></p>
+            <ul>
+                <li>✅ RF01 — Cadastro e login por e-mail e senha</li>
+                <li>✅ RF02 — Registrar transação (tipo, valor, categoria, data, descrição)</li>
+                <li>✅ RF03 — Listar transações do mês atual</li>
+                <li>✅ RF04 — Exibir saldo do mês (rendas − despesas)</li>
+                <li>✅ RF05 — Gráfico de transações por categoria (PieChart)</li>
+                <li>⚠️ RF06 — Definir orçamento mensal por categoria (parcial — orçamento global
+                    implementado)</li>
+                <li>✅ RF07 — Notificação ao atingir 80% do orçamento</li>
+                <li>❌ RF08 — Exportar extrato em PDF (movido para backlog v2.0)</li>
+            </ul>
+            <p><strong>Notificação implementada:</strong> ao salvar uma nova transação, um
+                condicional verifica se o total mensal ultrapassou 80% do
+                <code>orcamento_mensal</code> do usuário. Se sim, dispara uma
+                <strong>notificação local</strong> com a mensagem "Atenção, Mariana! Você
+                já usou 83% do seu orçamento de Janeiro."
+            </p>
+        </div>
+    </main>
+</body>
+
+</html>

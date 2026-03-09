@@ -1,0 +1,363 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 3.2 — Padrão DAO</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --pattern: #7c3aed;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #ede9fe;
+      border-color: var(--pattern);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #ede9fe;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    .ann {
+      color: #c4b5fd;
+    }
+
+    /* DAO Diagram */
+    .dao-diagram {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      margin: 20px 0;
+      flex-wrap: wrap;
+    }
+
+    .dao-box {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      min-width: 120px;
+    }
+
+    .dao-box.interface {
+      border-color: var(--pattern);
+      background: #ede9fe;
+      border-style: dashed;
+    }
+
+    .dao-box.impl {
+      border-color: #10b981;
+      background: #d1fae5;
+    }
+
+    .dao-box.db {
+      border-color: #3b82f6;
+      background: #dbeafe;
+    }
+
+    .dao-arrow {
+      font-size: 1.5rem;
+      color: var(--muted);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 3.2 — Padrão DAO (Data Access Object)</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="conceito">Conceito</button>
+      <button class="tab" data-key="interface">Interface</button>
+      <button class="tab" data-key="impl">Implementação</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Conceito -->
+    <section class="panel active" data-key="conceito">
+      <div class="box">
+        <h3>O que é o Padrão DAO?</h3>
+        <p>O <strong>DAO</strong> (Data Access Object) encapsula todo o acesso a dados,
+          isolando a lógica de persistência do resto da aplicação.</p>
+
+        <div class="dao-diagram">
+          <div class="dao-box">
+            <strong>🎮 Controller</strong>
+            <p class="note">Usa DAO</p>
+          </div>
+          <div class="dao-arrow">→</div>
+          <div class="dao-box interface">
+            <strong>📋 AlunoDAO</strong>
+            <p class="note">Interface</p>
+          </div>
+          <div class="dao-arrow">→</div>
+          <div class="dao-box impl">
+            <strong>⚙️ AlunoDAOJDBC</strong>
+            <p class="note">Implementação</p>
+          </div>
+          <div class="dao-arrow">→</div>
+          <div class="dao-box db">
+            <strong>🐘 PostgreSQL</strong>
+            <p class="note">Banco</p>
+          </div>
+        </div>
+
+        <h4>Vantagens:</h4>
+        <ul>
+          <li>✅ <strong>Desacoplamento</strong> — Código de negócio não conhece SQL</li>
+          <li>✅ <strong>Flexibilidade</strong> — Pode trocar BD sem alterar o resto</li>
+          <li>✅ <strong>Testabilidade</strong> — Pode criar mock do DAO para testes</li>
+          <li>✅ <strong>Organização</strong> — Todo SQL fica em um só lugar</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Interface -->
+    <section class="panel" data-key="interface">
+      <div class="box">
+        <h3>Interface DAO</h3>
+        <p class="note">Define os métodos CRUD sem implementação:</p>
+
+        <pre><span class="kw">public interface</span> <span class="ty">AlunoDAO</span> {
+    
+    <span class="cm">// Create</span>
+    <span class="kw">void</span> <span class="fn">inserir</span>(<span class="ty">Aluno</span> aluno);
+    
+    <span class="cm">// Read</span>
+    <span class="ty">Aluno</span> <span class="fn">buscarPorId</span>(<span class="kw">int</span> id);
+    <span class="ty">List</span>&lt;<span class="ty">Aluno</span>&gt; <span class="fn">listarTodos</span>();
+    
+    <span class="cm">// Update</span>
+    <span class="kw">void</span> <span class="fn">atualizar</span>(<span class="ty">Aluno</span> aluno);
+    
+    <span class="cm">// Delete</span>
+    <span class="kw">void</span> <span class="fn">excluir</span>(<span class="kw">int</span> id);
+}</pre>
+
+        <div class="box" style="background:#fffbeb;border-color:#f59e0b;">
+          <strong>💡 Por que interface?</strong> — Permite múltiplas implementações (JDBC, JPA, Mock)
+          sem alterar o código que usa o DAO.
+        </div>
+      </div>
+    </section>
+
+    <!-- Implementação -->
+    <section class="panel" data-key="impl">
+      <div class="box">
+        <h3>Implementação JDBC</h3>
+
+        <pre><span class="kw">public class</span> <span class="ty">AlunoDAOJDBC</span> <span class="kw">implements</span> <span class="ty">AlunoDAO</span> {
+    
+    <span class="kw">private</span> <span class="ty">Connection</span> conn;
+    
+    <span class="kw">public</span> <span class="ty">AlunoDAOJDBC</span>(<span class="ty">Connection</span> conn) {
+        <span class="kw">this</span>.conn = conn;
+    }
+    
+    <span class="ann">@Override</span>
+    <span class="kw">public void</span> <span class="fn">inserir</span>(<span class="ty">Aluno</span> aluno) {
+        <span class="ty">String</span> sql = <span class="str">"INSERT INTO aluno (nome, email) VALUES (?, ?)"</span>;
+        <span class="kw">try</span> (<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql)) {
+            ps.<span class="fn">setString</span>(<span class="str">1</span>, aluno.<span class="fn">getNome</span>());
+            ps.<span class="fn">setString</span>(<span class="str">2</span>, aluno.<span class="fn">getEmail</span>());
+            ps.<span class="fn">executeUpdate</span>();
+        }
+    }
+    
+    <span class="ann">@Override</span>
+    <span class="kw">public</span> <span class="ty">Aluno</span> <span class="fn">buscarPorId</span>(<span class="kw">int</span> id) {
+        <span class="ty">String</span> sql = <span class="str">"SELECT * FROM aluno WHERE id = ?"</span>;
+        <span class="kw">try</span> (<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql)) {
+            ps.<span class="fn">setInt</span>(<span class="str">1</span>, id);
+            <span class="ty">ResultSet</span> rs = ps.<span class="fn">executeQuery</span>();
+            <span class="kw">if</span> (rs.<span class="fn">next</span>()) {
+                <span class="kw">return new</span> <span class="ty">Aluno</span>(
+                    rs.<span class="fn">getInt</span>(<span class="str">"id"</span>),
+                    rs.<span class="fn">getString</span>(<span class="str">"nome"</span>),
+                    rs.<span class="fn">getString</span>(<span class="str">"email"</span>)
+                );
+            }
+        }
+        <span class="kw">return null</span>;
+    }
+}</pre>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Padrão DAO</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'DAO significa...', opts: ['Data Access Object', 'Database Administrator Object', 'Direct Access Operation'], ans: 0 },
+      { q: 'O DAO encapsula...', opts: ['Interface gráfica', 'Acesso a dados', 'Eventos de mouse'], ans: 1 },
+      { q: 'Por que usar interface no DAO?', opts: ['É obrigatório', 'Permite múltiplas implementações', 'Melhora performance'], ans: 1 },
+      { q: 'Quem deve chamar o DAO?', opts: ['A View diretamente', 'O Controller/Service', 'O banco de dados'], ans: 1 },
+      { q: 'AlunoDAOJDBC implements AlunoDAO significa...', opts: ['Herança', 'Implementa a interface', 'Cria nova classe'], ans: 1 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+        fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,571 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 1.2 — Containers e Layouts JavaFX</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --javafx: #f7931e;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #fff7ed;
+      border-color: var(--javafx);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #fff7ed;
+    }
+
+    .btn.active {
+      background: var(--javafx);
+      color: white;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    /* Layout cards */
+    .layout-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .layout-card {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .layout-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--javafx);
+    }
+
+    .layout-card.selected {
+      border-color: var(--javafx);
+      background: #fff7ed;
+    }
+
+    .layout-card h4 {
+      margin: 0 0 8px;
+    }
+
+    .layout-card .icon {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .layout-preview {
+      background: #f1f5f9;
+      border-radius: 8px;
+      padding: 8px;
+      margin-top: 8px;
+      min-height: 60px;
+      display: flex;
+    }
+
+    .layout-preview.vbox {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .layout-preview.hbox {
+      flex-direction: row;
+      gap: 4px;
+    }
+
+    .layout-preview.gridpane {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4px;
+    }
+
+    .layout-preview.borderpane {
+      display: grid;
+      grid-template-areas: "top top" "left center" "bottom bottom";
+      grid-template-rows: auto 1fr auto;
+      gap: 4px;
+    }
+
+    .preview-item {
+      background: #3b82f6;
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    /* Simulador */
+    .sim-container {
+      background: #f8fafc;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      min-height: 250px;
+    }
+
+    .sim-vbox {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .sim-hbox {
+      display: flex;
+      flex-direction: row;
+      gap: 8px;
+    }
+
+    .sim-gridpane {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .sim-borderpane {
+      display: grid;
+      grid-template-areas: "top top" "left center" "bottom bottom";
+      grid-template-rows: auto 1fr auto;
+      gap: 8px;
+      height: 100%;
+    }
+
+    .sim-element {
+      background: linear-gradient(to bottom, #f5f5f5, #e0e0e0);
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 0.85rem;
+    }
+
+    .sim-element.top {
+      grid-area: top;
+      background: #bfdbfe;
+    }
+
+    .sim-element.left {
+      grid-area: left;
+      background: #bbf7d0;
+    }
+
+    .sim-element.center {
+      grid-area: center;
+      background: #fef08a;
+    }
+
+    .sim-element.bottom {
+      grid-area: bottom;
+      background: #fecaca;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 1.2 — Containers e Layouts</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="conceito">Conceito</button>
+      <button class="tab" data-key="layouts">Tipos de Layout</button>
+      <button class="tab" data-key="simulador">Simulador</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Conceito -->
+    <section class="panel active" data-key="conceito">
+      <div class="box">
+        <h3>O que são Layouts?</h3>
+        <p>No JavaFX, <strong>Layouts</strong> (ou <em>Panes</em>) são contêineres que organizam automaticamente
+          seus filhos de acordo com regras específicas.</p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Layout</th>
+              <th>Organização</th>
+              <th>Uso Comum</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>VBox</strong></td>
+              <td>Vertical (um abaixo do outro)</td>
+              <td>Formulários, listas</td>
+            </tr>
+            <tr>
+              <td><strong>HBox</strong></td>
+              <td>Horizontal (lado a lado)</td>
+              <td>Barras de botões, menus</td>
+            </tr>
+            <tr>
+              <td><strong>GridPane</strong></td>
+              <td>Grade de linhas e colunas</td>
+              <td>Formulários complexos</td>
+            </tr>
+            <tr>
+              <td><strong>BorderPane</strong></td>
+              <td>5 regiões: top, left, center, right, bottom</td>
+              <td>Layout principal da aplicação</td>
+            </tr>
+            <tr>
+              <td><strong>StackPane</strong></td>
+              <td>Empilhado (um sobre o outro)</td>
+              <td>Overlays, loading</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Propriedades Importantes:</h4>
+        <ul>
+          <li><code>spacing</code> — Espaço entre elementos</li>
+          <li><code>padding</code> — Margem interna do container</li>
+          <li><code>alignment</code> — Alinhamento dos filhos</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Layouts -->
+    <section class="panel" data-key="layouts">
+      <div class="box">
+        <h3>Clique para ver detalhes:</h3>
+        <div class="layout-cards">
+          <div class="layout-card selected" data-layout="vbox">
+            <div class="icon">⬇️</div>
+            <h4>VBox</h4>
+            <div class="layout-preview vbox">
+              <div class="preview-item">Item 1</div>
+              <div class="preview-item">Item 2</div>
+              <div class="preview-item">Item 3</div>
+            </div>
+          </div>
+          <div class="layout-card" data-layout="hbox">
+            <div class="icon">➡️</div>
+            <h4>HBox</h4>
+            <div class="layout-preview hbox">
+              <div class="preview-item">1</div>
+              <div class="preview-item">2</div>
+              <div class="preview-item">3</div>
+            </div>
+          </div>
+          <div class="layout-card" data-layout="gridpane">
+            <div class="icon">🔲</div>
+            <h4>GridPane</h4>
+            <div class="layout-preview gridpane">
+              <div class="preview-item">0,0</div>
+              <div class="preview-item">0,1</div>
+              <div class="preview-item">1,0</div>
+              <div class="preview-item">1,1</div>
+            </div>
+          </div>
+          <div class="layout-card" data-layout="borderpane">
+            <div class="icon">🔳</div>
+            <h4>BorderPane</h4>
+            <div class="layout-preview borderpane">
+              <div class="preview-item" style="grid-area:top">Top</div>
+              <div class="preview-item" style="grid-area:left">L</div>
+              <div class="preview-item" style="grid-area:center">Center</div>
+              <div class="preview-item" style="grid-area:bottom">Bottom</div>
+            </div>
+          </div>
+        </div>
+        <div id="layout-detail" class="box" style="margin-top:16px;">
+          <h4>VBox — Vertical Box</h4>
+          <pre><span class="ty">VBox</span> vbox = <span class="kw">new</span> <span class="ty">VBox</span>(<span class="str">10</span>); <span class="cm">// spacing=10px</span>
+vbox.<span class="fn">setPadding</span>(<span class="kw">new</span> <span class="ty">Insets</span>(<span class="str">15</span>));
+vbox.<span class="fn">setAlignment</span>(<span class="ty">Pos</span>.CENTER);
+vbox.<span class="fn">getChildren</span>().<span class="fn">addAll</span>(label, campo, botao);</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Simulador -->
+    <section class="panel" data-key="simulador">
+      <div class="box">
+        <h3>Simulador de Layouts</h3>
+        <p class="note">Escolha um layout e veja como os elementos são organizados:</p>
+        <div class="grid">
+          <div>
+            <h4>Escolha o Layout:</h4>
+            <button class="btn active" data-sim="vbox">VBox</button>
+            <button class="btn" data-sim="hbox">HBox</button>
+            <button class="btn" data-sim="gridpane">GridPane</button>
+            <button class="btn" data-sim="borderpane">BorderPane</button>
+
+            <h4 style="margin-top:16px;">Propriedades:</h4>
+            <div style="display:flex;align-items:center;gap:8px;margin:8px 0;">
+              <label>Spacing:</label>
+              <input type="range" id="spacing" min="0" max="20" value="8">
+              <span id="spacing-val">8px</span>
+            </div>
+          </div>
+          <div>
+            <h4>Preview:</h4>
+            <div class="sim-container" id="sim-preview">
+              <div class="sim-vbox" id="sim-layout">
+                <div class="sim-element">Label</div>
+                <div class="sim-element">TextField</div>
+                <div class="sim-element">Button</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Layouts JavaFX</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Layout cards
+    const layoutDetails = {
+      vbox: `<h4>VBox — Vertical Box</h4>
+                   <pre><span class="ty">VBox</span> vbox = <span class="kw">new</span> <span class="ty">VBox</span>(<span class="str">10</span>); <span class="cm">// spacing=10px</span>
+vbox.<span class="fn">setPadding</span>(<span class="kw">new</span> <span class="ty">Insets</span>(<span class="str">15</span>));
+vbox.<span class="fn">setAlignment</span>(<span class="ty">Pos</span>.CENTER);
+vbox.<span class="fn">getChildren</span>().<span class="fn">addAll</span>(label, campo, botao);</pre>`,
+      hbox: `<h4>HBox — Horizontal Box</h4>
+                   <pre><span class="ty">HBox</span> hbox = <span class="kw">new</span> <span class="ty">HBox</span>(<span class="str">10</span>);
+hbox.<span class="fn">setAlignment</span>(<span class="ty">Pos</span>.CENTER_LEFT);
+hbox.<span class="fn">getChildren</span>().<span class="fn">addAll</span>(btn1, btn2, btn3);</pre>`,
+      gridpane: `<h4>GridPane — Grade</h4>
+                       <pre><span class="ty">GridPane</span> grid = <span class="kw">new</span> <span class="ty">GridPane</span>();
+grid.<span class="fn">setHgap</span>(<span class="str">10</span>); <span class="cm">// gap horizontal</span>
+grid.<span class="fn">setVgap</span>(<span class="str">10</span>); <span class="cm">// gap vertical</span>
+grid.<span class="fn">add</span>(label, <span class="str">0</span>, <span class="str">0</span>); <span class="cm">// coluna 0, linha 0</span>
+grid.<span class="fn">add</span>(campo, <span class="str">1</span>, <span class="str">0</span>); <span class="cm">// coluna 1, linha 0</span></pre>`,
+      borderpane: `<h4>BorderPane — 5 Regiões</h4>
+                         <pre><span class="ty">BorderPane</span> bp = <span class="kw">new</span> <span class="ty">BorderPane</span>();
+bp.<span class="fn">setTop</span>(menuBar);
+bp.<span class="fn">setLeft</span>(sidePanel);
+bp.<span class="fn">setCenter</span>(mainContent);
+bp.<span class="fn">setBottom</span>(statusBar);</pre>`
+    };
+
+    document.querySelectorAll('.layout-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.layout-card').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+        document.getElementById('layout-detail').innerHTML = layoutDetails[card.dataset.layout];
+      });
+    });
+
+    // Simulador
+    const simLayout = document.getElementById('sim-layout');
+    const spacingInput = document.getElementById('spacing');
+    const spacingVal = document.getElementById('spacing-val');
+    let currentLayout = 'vbox';
+
+    const layouts = {
+      vbox: `<div class="sim-element">Label</div>
+                   <div class="sim-element">TextField</div>
+                   <div class="sim-element">Button</div>`,
+      hbox: `<div class="sim-element">Btn1</div>
+                   <div class="sim-element">Btn2</div>
+                   <div class="sim-element">Btn3</div>`,
+      gridpane: `<div class="sim-element">Nome:</div>
+                       <div class="sim-element">TextField</div>
+                       <div class="sim-element">Email:</div>
+                       <div class="sim-element">TextField</div>`,
+      borderpane: `<div class="sim-element top">Menu Bar</div>
+                         <div class="sim-element left">Nav</div>
+                         <div class="sim-element center">Conteúdo Principal</div>
+                         <div class="sim-element bottom">Status Bar</div>`
+    };
+
+    function updateSimulator() {
+      const gap = spacingInput.value + 'px';
+      simLayout.className = 'sim-' + currentLayout;
+      simLayout.innerHTML = layouts[currentLayout];
+      simLayout.style.gap = gap;
+      spacingVal.textContent = gap;
+    }
+
+    document.querySelectorAll('[data-sim]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('[data-sim]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        currentLayout = btn.dataset.sim;
+        updateSimulator();
+      });
+    });
+
+    spacingInput.addEventListener('input', updateSimulator);
+
+    // Quiz
+    const quizzes = [
+      { q: 'Qual layout organiza elementos verticalmente?', opts: ['HBox', 'VBox', 'GridPane'], ans: 1 },
+      { q: 'Para criar um formulário com labels na esquerda e campos na direita, o melhor layout é...', opts: ['VBox', 'StackPane', 'GridPane'], ans: 2 },
+      { q: 'Qual método adiciona espaço entre elementos no VBox?', opts: ['setSpacing()', 'setGap()', 'setMargin()'], ans: 0 },
+      { q: 'BorderPane possui quantas regiões?', opts: ['3', '4', '5'], ans: 2 },
+      { q: 'Para definir a área central do BorderPane, usamos...', opts: ['setCenter()', 'addCenter()', 'center.add()'], ans: 0 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        const correct = quizzes[qi].ans === oi;
+        fb.textContent = correct ? 'Correto! ✅' : 'Incorreto. Tente novamente.';
+        fb.className = 'feedback ' + (correct ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Práticas 5.1 — Conceitos de Rede</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --socket: #0ea5e9;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #e0f2fe;
+            border-color: var(--socket);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background: #e0f2fe;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .feedback.ok {
+            color: var(--good);
+        }
+
+        .feedback.err {
+            color: #dc2626;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        .kw {
+            color: #93c5fd;
+        }
+
+        .ty {
+            color: #fdba74;
+        }
+
+        .str {
+            color: #86efac;
+        }
+
+        .cm {
+            color: #94a3b8;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 0.9rem;
+        }
+
+        th,
+        td {
+            border: 1px solid var(--border);
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background: #f1f5f9;
+        }
+
+        /* Network diagram */
+        .network-diagram {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 40px;
+            padding: 30px;
+            background: #f8fafc;
+            border-radius: 10px;
+        }
+
+        .network-node {
+            text-align: center;
+        }
+
+        .network-icon {
+            font-size: 4rem;
+        }
+
+        .network-arrow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .arrow-label {
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Práticas 5.1 — Conceitos de Rede e Socket</h2>
+
+        <div class="tabs">
+            <button class="tab active" data-key="conceitos">Conceitos</button>
+            <button class="tab" data-key="modelo">Cliente-Servidor</button>
+            <button class="tab" data-key="tcpudp">TCP vs UDP</button>
+            <button class="tab" data-key="quiz">Quiz</button>
+        </div>
+
+        <!-- Conceitos -->
+        <section class="panel active" data-key="conceitos">
+            <div class="box">
+                <h3>Conceitos Fundamentais</h3>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Conceito</th>
+                            <th>Descrição</th>
+                            <th>Exemplo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>IP</strong></td>
+                            <td>Endereço do computador na rede</td>
+                            <td>192.168.1.100, localhost</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Porta</strong></td>
+                            <td>Número que identifica o serviço (0-65535)</td>
+                            <td>80 (HTTP), 443 (HTTPS), 5432 (PostgreSQL)</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Socket</strong></td>
+                            <td>Endpoint de comunicação (IP:Porta)</td>
+                            <td>192.168.1.100:8080</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Protocolo</strong></td>
+                            <td>Regras de comunicação</td>
+                            <td>TCP, UDP, HTTP</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="box" style="background:#e0f2fe;border-color:var(--socket);">
+                    <strong>🔌 Socket = IP + Porta</strong><br>
+                    É como um "telefone": IP é o número, Porta é o ramal.
+                </div>
+            </div>
+        </section>
+
+        <!-- Modelo -->
+        <section class="panel" data-key="modelo">
+            <div class="box">
+                <h3>Modelo Cliente-Servidor</h3>
+
+                <div class="network-diagram">
+                    <div class="network-node">
+                        <div class="network-icon">💻</div>
+                        <div><strong>Cliente</strong></div>
+                        <div class="note">Inicia conexão</div>
+                    </div>
+                    <div class="network-arrow">
+                        <div>→ Requisição →</div>
+                        <div class="arrow-label">Socket conecta</div>
+                        <div>← Resposta ←</div>
+                    </div>
+                    <div class="network-node">
+                        <div class="network-icon">🖥️</div>
+                        <div><strong>Servidor</strong></div>
+                        <div class="note">Espera conexões</div>
+                    </div>
+                </div>
+
+                <h4>Fluxo de Comunicação:</h4>
+                <ol>
+                    <li>Servidor abre <code>ServerSocket</code> em uma porta</li>
+                    <li>Servidor chama <code>accept()</code> e espera</li>
+                    <li>Cliente cria <code>Socket</code> para IP:Porta do servidor</li>
+                    <li>Servidor aceita e retorna Socket para comunicação</li>
+                    <li>Ambos leem/escrevem via streams</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- TCP vs UDP -->
+        <section class="panel" data-key="tcpudp">
+            <div class="box">
+                <h3>TCP vs UDP</h3>
+
+                <div class="grid">
+                    <div class="box" style="border-color:var(--socket);">
+                        <h4>🔗 TCP (Transmission Control Protocol)</h4>
+                        <ul>
+                            <li>✅ Conexão estabelecida</li>
+                            <li>✅ Entrega garantida e ordenada</li>
+                            <li>✅ Controle de erros</li>
+                            <li>⚠️ Mais lento (overhead)</li>
+                        </ul>
+                        <p class="note"><strong>Uso:</strong> HTTP, Email, BD, Chat</p>
+                    </div>
+                    <div class="box" style="border-color:#f59e0b;">
+                        <h4>📨 UDP (User Datagram Protocol)</h4>
+                        <ul>
+                            <li>❌ Sem conexão</li>
+                            <li>❌ Sem garantia de entrega</li>
+                            <li>❌ Pacotes podem chegar fora de ordem</li>
+                            <li>✅ Muito rápido</li>
+                        </ul>
+                        <p class="note"><strong>Uso:</strong> Streaming, Games, DNS</p>
+                    </div>
+                </div>
+
+                <p style="text-align:center;margin-top:16px;">
+                    <strong>Em Java usamos TCP:</strong> <code>Socket</code> e <code>ServerSocket</code>
+                </p>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="panel" data-key="quiz">
+            <div class="box">
+                <h3>Quiz — Conceitos de Rede</h3>
+                <div id="quiz-items"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tabs
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const btn = e.target.closest('.tab'); if (!btn) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+        });
+
+        // Quiz
+        const quizzes = [
+            { q: 'Um Socket é a combinação de...', opts: ['IP + Nome', 'IP + Porta', 'Protocolo + Nome'], ans: 1 },
+            { q: 'A porta 80 é usada por...', opts: ['SSH', 'HTTP', 'PostgreSQL'], ans: 1 },
+            { q: 'TCP garante...', opts: ['Velocidade máxima', 'Entrega ordenada', 'Broadcast'], ans: 1 },
+            { q: 'Quem inicia a conexão?', opts: ['Servidor', 'Cliente', 'Ambos'], ans: 1 },
+            { q: 'ServerSocket.accept() faz...', opts: ['Conecta ao servidor', 'Espera conexão de cliente', 'Envia dados'], ans: 1 }
+        ];
+
+        document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+        document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+                const fb = document.getElementById(`qfb-${qi}`);
+                fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+                fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+            });
+        });
+    </script>
+</body>
+
+</html>

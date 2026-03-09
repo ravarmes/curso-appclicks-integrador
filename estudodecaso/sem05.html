@@ -1,0 +1,239 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 5 — Formulários e Validação</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 5 — Formulários e Validação</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Detalhar de forma completa a estrutura das coleções no Firebase/Firestore. Além disso, esquematizar os
+                formulários e definir as regras de validação para cada campo, garantindo que o banco de dados receba
+                informações corretas na semana seguinte.</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Documente a Estrutura das Coleções</strong> <span class="tool-tag">Notion / Excel</span>
+                    <p>Crie uma tabela de definição de campos para cada coleção do projeto, indicando o nome do campo, o
+                        tipo no Firestore, se é obrigatório e, quando aplicável, se é uma referência (Document
+                        Reference).</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Planeje as Validações dos Formulários</strong> <span class="tool-tag">ChatGPT /
+                        Claude</span>
+                    <p>Projete quais widgets serão utilizados (Ex: TextField, DropDown, DatePicker) para cada dado a ser
+                        recolhido nos formulários. Defina para cada um qual regra de validação deverá ser imposta e qual
+                        a mensagem de erro será exibida ao usuário (ex: "Valor deve ser maior que 0").</p>
+                    <p><em>Exemplo de Prompt: "Para um formulário de Cadastro no meu aplicativo, liste todos os campos
+                            necessários indicando o tipo de widget e a regra de validação..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Entregue o Resumo Estruturado</strong> <span class="tool-tag">Word / Docs</span>
+                    <p>Apresente de maneira unificada essas duas tabelas: a de coleções e a de planejamento dos widgets
+                        e validações. Este documento servirá de manual para a montagem final no FlutterFlow e no
+                        Firebase.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/1mfs3lsU_AWRABxfpNJW3DTpmPls3Wj5c8ymaOg6jmjI/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Planejamento de Formulários e Validações</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja como o grupo do <strong>FinanCampus</strong> documentou as coleções e as validações nesta semana.
+            </p>
+
+            <img src="../images/fig_val_mockup.png" class="img-fluid" alt="Tabela de Validação">
+            <br /><br />
+
+            <p><strong>Coleções documentadas (2 coleções):</strong></p>
+            <ul>
+                <li><strong>categorias:</strong> nome (String, obrigatório), icone (String), cor
+                    (String)</li>
+                <li><strong>transacoes:</strong> <strong>tipo</strong> (String, obrigatório:
+                    'Renda' ou 'Despesa'),
+                    descricao (String), valor (double, obrigatório), data (Timestamp, obrigatório),
+                    usuario_uid (String — UID do Firebase Auth), categoria_ref (Document Reference →
+                    categorias)</li>
+            </ul>
+            <p>A documentação está pronta para ser usada como referência na
+                <strong>Semana 6</strong> ao criar as coleções no Firebase via FlutterFlow.
+            </p>
+            <p><strong>Tabela de planejamento de validações (formulário "Nova Transação"):</strong></p>
+            <ul>
+                <li>Campo "Tipo": DropDown — obrigatório (Renda ou Despesa).</li>
+                <li>Campo "Valor": TextField numérico — obrigatório, maior que zero.</li>
+                <li>Campo "Descrição": TextField texto — opcional.</li>
+                <li>Campo "Data": DatePicker — obrigatório, sem datas futuras.</li>
+                <li>Campo "Categoria": DropDown vinculado à coleção <code>categorias</code> —
+                    obrigatório.</li>
+            </ul>
+            <p>As validações serão implementadas no FlutterFlow na <strong>Semana 6</strong>,
+                quando as coleções já estarão conectadas e o DropDown de Categoria poderá
+                ser vinculado diretamente à coleção <code>categorias</code> do Firestore.</p>
+        </div>
+    </main>
+</body>
+
+</html>

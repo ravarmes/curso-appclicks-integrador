@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Criar Conta — Banco de Dados em 9 Passos</title>
+    <meta name="description"
+        content="Cadastre-se para acessar o material complementar exclusivo do livro Banco de Dados em 9 Passos">
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+    <!-- Partículas decorativas -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Header -->
+            <div class="login-header">
+                <img src="infograficos/capa.jpg" alt="Capa do Livro" class="login-logo">
+                <h1 class="login-title">Criar Conta</h1>
+                <p class="login-subtitle">Banco de Dados em 9 Passos</p>
+            </div>
+
+            <!-- Mensagem de feedback -->
+            <div id="message" class="message">
+                <span class="message-icon"></span>
+                <span class="message-text"></span>
+            </div>
+
+            <!-- Formulário de cadastro -->
+            <form id="cadastroForm" class="login-form">
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="nome" name="nome" class="form-input" placeholder="Seu nome completo"
+                            required autocomplete="name">
+                        <span class="input-icon">👤</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" name="email" class="form-input" placeholder="seu@email.com"
+                            required autocomplete="email">
+                        <span class="input-icon">📧</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="codigo">Código do Livro</label>
+                    <div class="input-wrapper">
+                        <input type="text" id="codigo" name="codigo" class="form-input"
+                            placeholder="Código secreto do livro" required>
+                        <span class="input-icon">📖</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="senha" name="senha" class="form-input"
+                            placeholder="Mínimo 6 caracteres" required minlength="6" autocomplete="new-password">
+                        <span class="input-icon">🔒</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmarSenha">Confirmar Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="confirmarSenha" name="confirmarSenha" class="form-input"
+                            placeholder="Digite a senha novamente" required minlength="6" autocomplete="new-password">
+                        <span class="input-icon">🔒</span>
+                    </div>
+                </div>
+
+                <button type="submit" id="cadastroBtn" class="login-btn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">Criar Conta</span>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span class="divider-line"></span>
+                <span class="divider-text">Já tem uma conta?</span>
+                <span class="divider-line"></span>
+            </div>
+
+            <!-- Link para login -->
+            <div class="register-section">
+                <a href="login.html" class="register-link">
+                    🔑 Fazer Login
+                </a>
+            </div>
+
+            <!-- Footer -->
+            <div class="login-footer">
+                <p class="footer-text">
+                    © 2026 <a href="https://github.com/ravarmes" target="_blank" rel="noopener"
+                        class="footer-link">Rafael Vargas Mesquita</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Função para carregar auth.js dinamicamente se necessário
+        async function ensureAuthLoaded() {
+            if (typeof window.signup === 'function') {
+                return true;
+            }
+
+            console.log('[Cadastro] auth.js não carregado, tentando carregar dinamicamente...');
+            try {
+                const response = await fetch('auth.js');
+                const code = await response.text();
+                eval(code);
+                console.log('[Cadastro] auth.js carregado dinamicamente com sucesso');
+                return typeof window.signup === 'function';
+            } catch (error) {
+                console.error('[Cadastro] Falha ao carregar auth.js:', error);
+                return false;
+            }
+        }
+
+        // Usa 'load' para garantir que todos os scripts externos foram executados
+        window.addEventListener('load', async function () {
+            // Garante que auth.js está carregado
+            const authLoaded = await ensureAuthLoaded();
+            if (!authLoaded) {
+                console.error('[Cadastro] auth.js não pôde ser carregado!');
+                const message = document.getElementById('message');
+                if (message) {
+                    message.classList.add('show', 'error');
+                    message.querySelector('.message-icon').textContent = '❌';
+                    message.querySelector('.message-text').textContent = 'Erro ao carregar sistema. Recarregue a página.';
+                }
+                return;
+            }
+
+            // Inicializa Supabase
+            if (typeof initSupabase === 'function') {
+                initSupabase();
+            }
+
+            // Redireciona se já estiver logado
+            if (typeof redirectIfAuthenticated === 'function') {
+                redirectIfAuthenticated();
+            }
+
+            // Form submit handler
+            const form = document.getElementById('cadastroForm');
+            if (form) {
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    // Verifica se signup está disponível
+                    if (typeof window.signup !== 'function') {
+                        console.error('[Cadastro] window.signup não é uma função');
+                        const loaded = await ensureAuthLoaded();
+                        if (!loaded) {
+                            alert('Erro ao carregar sistema. Recarregue a página.');
+                            return;
+                        }
+                    }
+
+                    const nome = document.getElementById('nome').value.trim();
+                    const email = document.getElementById('email').value.trim();
+                    const codigo = document.getElementById('codigo').value.trim();
+                    const senha = document.getElementById('senha').value;
+                    const confirmarSenha = document.getElementById('confirmarSenha').value;
+                    const btn = document.getElementById('cadastroBtn');
+                    const message = document.getElementById('message');
+
+                    // Valida senhas
+                    if (senha !== confirmarSenha) {
+                        message.classList.add('show', 'error');
+                        message.querySelector('.message-icon').textContent = '❌';
+                        message.querySelector('.message-text').textContent = 'As senhas não coincidem.';
+                        return;
+                    }
+
+                    // Loading state
+                    btn.classList.add('loading');
+                    btn.disabled = true;
+                    message.classList.remove('show', 'error', 'success');
+
+                    try {
+                        const result = await window.signup(nome, email, senha, codigo);
+
+                        if (result.success) {
+                            // Sucesso
+                            message.classList.add('show', 'success');
+                            message.querySelector('.message-icon').textContent = '✅';
+                            message.querySelector('.message-text').textContent = result.message;
+
+                            // Redireciona para login após 2 segundos
+                            setTimeout(() => {
+                                window.location.href = 'login.html';
+                            }, 2000);
+                        } else {
+                            // Erro
+                            message.classList.add('show', 'error');
+                            message.querySelector('.message-icon').textContent = '❌';
+                            message.querySelector('.message-text').textContent = result.message;
+                            btn.classList.remove('loading');
+                            btn.disabled = false;
+                        }
+                    } catch (error) {
+                        console.error('Erro no cadastro:', error);
+                        message.classList.add('show', 'error');
+                        message.querySelector('.message-icon').textContent = '❌';
+                        message.querySelector('.message-text').textContent = 'Erro de conexão. Tente novamente.';
+                        btn.classList.remove('loading');
+                        btn.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

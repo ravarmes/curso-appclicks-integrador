@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 7 — Listas Dinâmicas e Mapeamento de Telas</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        code {
+            background-color: #e2e8f0;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 7 — Mapeamento e Navegação</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Desenvolver uma visão arquitetural de todas as telas (Mapeamento e Diagrama de Navegação). Posteriormente
+                colocar o Read do CRUD para funcionar, consumindo e listando os dados cadastrados em suas respectivas
+                listagens pela ferramenta visual no FlutterFlow.</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Identifique e Liste as Telas Num Mapa</strong> <span class="tool-tag">Excel / Notion</span>
+                    <p>Mapeiem quais são as telas existentes no sistema e classifique-as (Ex: Listagem, Autenticação,
+                        Detalhe/Edição, Criação). Faça uma tabela resumo.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Construa o Diagrama de Navegação Gráfico</strong> <span class="tool-tag">Whimsical /
+                        Draw.io</span>
+                    <p>Com ajuda dos botões do FlutterFlow e de suas intenções (UX/UI), faça um fluxograma. Deve ficar
+                        bem evidente para onde cada clique num botão chave leva o usuário. Use losangos para decisões (O
+                        usuário está logado?), entre outras técnicas.</p>
+                    <p><em>Exemplo de Prompt: "Como Especialista em UX/UI Mobile, sugira a arquitetura de navegação
+                            (quais itens vão na Bottom Navigation Bar, e quais ficam ocultos num Drawer) para meu
+                            aplicativo..."</em></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Configure o 'Read' Dinâmico no FlutterFlow</strong> <span class="tool-tag">FlutterFlow
+                        (ListView + Backend Query)</span>
+                    <p>Configure os componentes ListView/GridView em suas páginas para carregar coleções reais,
+                        configurando Queries e mapeando Variáveis na tela para visualização (Por exemplo: Puxando da
+                        Collection transacoes e mapeando as informações nos Cards).</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-content">
+                    <strong>Entregue o Fluxo e Funcionalidades Visualmente</strong>
+                    <p>Anexe ao Documento a Listagem da Tabela, o Wireframe Visual e um Print/Foto do StoryBoard das
+                        Telas ativas validadas no FlutterFlow.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/1SZshhZ4C2TL9zFHNneE4Xr8hvFQIKMzJGc3slERko0Q/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Arquitetura Visual: Mapa de Telas e Navegação</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja o mapeamento completo de telas que o grupo do <strong>FinanCampus</strong> elaborou nesta semana.
+            </p>
+
+            <img src="../images/fig_nav_mockup.png" class="img-fluid" alt="Diagrama Flow Navegação">
+            <br /><br />
+
+            <p><strong>Mapa de telas — FinanCampus (11 telas):</strong></p>
+            <ul>
+                <li><strong>Autenticação:</strong> Splash | Login | Cadastro | Recuperar Senha</li>
+                <li><strong>Principal (Bottom Nav — 4 abas):</strong> Home/Dashboard |
+                    Lista de Transações | Nova Transação | Configurações</li>
+                <li><strong>Detalhes/Edição:</strong> Detalhe da Transação | Editar Transação</li>
+            </ul>
+            <p><strong>Diagrama de navegação</strong> criado no
+                Whimsical. Fluxo principal:
+                <em>Splash → [usuário logado?] → sim: Home / não: Login → Home</em>.
+                A partir do <em>Home</em>, o usuário acessa as 4 abas pelo Bottom
+                Navigation Bar. O botão flutuante (+) no Home navega diretamente para
+                <em>Nova Transação</em>. Toque em um item da lista navega para
+                <em>Detalhe da Transação</em>, que dá acesso a <em>Editar Transação</em>
+                pelo botão de edição.
+            </p>
+            <p><strong>Lista dinâmica implementada</strong> na tela "Lista de Transações":
+                widget <em>ListView</em> com <em>Backend Query</em> no Firestore,
+                filtrado por <code>usuario_uid = currentUserUid</code>, ordenado por
+                <code>data DESC</code>, limite de 50 registros. Cada item exibe um
+                widget <em>Card</em> com <em>Row</em> contendo: ícone da categoria,
+                descrição, valor e data — todos vinculados via <em>Set from Variable</em>
+                ao resultado da query.
+            </p>
+        </div>
+    </main>
+</body>
+
+</html>

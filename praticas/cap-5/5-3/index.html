@@ -1,0 +1,371 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Práticas 5.3 — Cliente TCP</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --socket: #0ea5e9;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.2rem;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .tab {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+        }
+
+        .tab.active {
+            background: #e0f2fe;
+            border-color: var(--socket);
+        }
+
+        .panel {
+            display: none;
+        }
+
+        .panel.active {
+            display: block;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 14px;
+            background: var(--surface);
+            margin: 10px 0;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .note {
+            color: var(--muted);
+            font-size: 0.92rem;
+        }
+
+        .btn {
+            border: 1px solid var(--border);
+            background: var(--surface);
+            border-radius: 10px;
+            padding: 8px 14px;
+            cursor: pointer;
+            margin: 4px;
+        }
+
+        .btn:hover {
+            background: #e0f2fe;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            font-weight: 600;
+        }
+
+        .feedback.ok {
+            color: var(--good);
+        }
+
+        .feedback.err {
+            color: #dc2626;
+        }
+
+        pre {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-size: 0.85rem;
+        }
+
+        .kw {
+            color: #93c5fd;
+        }
+
+        .ty {
+            color: #fdba74;
+        }
+
+        .str {
+            color: #86efac;
+        }
+
+        .cm {
+            color: #94a3b8;
+        }
+
+        /* Chat sim */
+        .chat-container {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px;
+        }
+
+        .chat-messages {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            height: 200px;
+            overflow-y: auto;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .chat-msg {
+            padding: 8px;
+            margin: 4px 0;
+            border-radius: 8px;
+            max-width: 80%;
+        }
+
+        .chat-msg.sent {
+            background: #e0f2fe;
+            margin-left: auto;
+        }
+
+        .chat-msg.received {
+            background: #f3f4f6;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 8px;
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Práticas 5.3 — Cliente TCP com DataInputStream/DataOutputStream</h2>
+
+        <div class="tabs">
+            <button class="tab active" data-key="codigo">Código</button>
+            <button class="tab" data-key="simulador">Simulador</button>
+            <button class="tab" data-key="envioObjetos">Envio de Objetos</button>
+            <button class="tab" data-key="quiz">Quiz</button>
+        </div>
+
+        <!-- Código -->
+        <section class="panel active" data-key="codigo">
+            <div class="box">
+                <h3>Cliente TCP Básico</h3>
+
+                <pre><span class="kw">import</span> java.io.*;
+<span class="kw">import</span> java.net.*;
+
+<span class="kw">public class</span> <span class="ty">Cliente</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="ty">String</span>[] args) {
+        <span class="kw">try</span> {
+            <span class="cm">// Conecta ao servidor</span>
+            <span class="ty">Socket</span> socket = <span class="kw">new</span> <span class="ty">Socket</span>(<span class="str">"127.0.0.1"</span>, <span class="str">54321</span>);
+            System.out.<span class="fn">println</span>(<span class="str">"Conectado ao servidor!"</span>);
+            
+            <span class="cm">// Obtém streams</span>
+            <span class="ty">DataOutputStream</span> saida = <span class="kw">new</span> <span class="ty">DataOutputStream</span>(
+                socket.<span class="fn">getOutputStream</span>());
+            <span class="ty">DataInputStream</span> entrada = <span class="kw">new</span> <span class="ty">DataInputStream</span>(
+                socket.<span class="fn">getInputStream</span>());
+            
+            <span class="cm">// Envia mensagem</span>
+            saida.<span class="fn">writeUTF</span>(<span class="str">"Olá, servidor!"</span>);
+            
+            <span class="cm">// Lê resposta</span>
+            <span class="ty">String</span> resposta = entrada.<span class="fn">readUTF</span>();
+            System.out.<span class="fn">println</span>(<span class="str">"Resposta: "</span> + resposta);
+            
+            <span class="cm">// Fecha conexão</span>
+            socket.<span class="fn">close</span>();
+            
+        } <span class="kw">catch</span> (<span class="ty">IOException</span> e) {
+            e.<span class="fn">printStackTrace</span>();
+        }
+    }
+}</pre>
+
+                <div class="box" style="background:#e0f2fe;border-color:var(--socket);">
+                    <strong>💡 Dica:</strong> Sempre feche o socket quando terminar para liberar recursos do sistema
+                    operacional.
+                </div>
+            </div>
+        </section>
+
+        <!-- Simulador -->
+        <section class="panel" data-key="simulador">
+            <div class="box">
+                <h3>Simulador de Chat Cliente-Servidor</h3>
+
+                <div class="grid">
+                    <div class="chat-container">
+                        <h4>💻 Cliente</h4>
+                        <div class="chat-messages" id="client-msgs"></div>
+                        <div class="chat-input">
+                            <input type="text" id="client-input" placeholder="Digite mensagem...">
+                            <button class="btn" id="client-send">Enviar</button>
+                        </div>
+                    </div>
+                    <div class="chat-container">
+                        <h4>🖥️ Servidor (Echo)</h4>
+                        <div class="chat-messages" id="server-msgs"></div>
+                        <p class="note">Servidor converte para maiúsculo e responde</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Envio de Objetos -->
+        <section class="panel" data-key="envioObjetos">
+            <div class="box">
+                <h3>Envio de Objetos Serializáveis</h3>
+
+                <h4>1. Criar classe Serializable:</h4>
+                <pre><span class="kw">import</span> java.io.<span class="ty">Serializable</span>;
+
+<span class="kw">public class</span> <span class="ty">Pessoa</span> <span class="kw">implements</span> <span class="ty">Serializable</span> {
+    <span class="kw">private</span> <span class="ty">String</span> nome;
+    <span class="kw">private int</span> idade;
+    
+    <span class="kw">public</span> <span class="ty">Pessoa</span>(<span class="ty">String</span> nome, <span class="kw">int</span> idade) {
+        <span class="kw">this</span>.nome = nome;
+        <span class="kw">this</span>.idade = idade;
+    }
+    
+    <span class="cm">// getters...</span>
+}</pre>
+
+                <h4>2. Cliente envia objeto:</h4>
+                <pre><span class="ty">ObjectOutputStream</span> saida = <span class="kw">new</span> <span class="ty">ObjectOutputStream</span>(
+    socket.<span class="fn">getOutputStream</span>());
+
+<span class="ty">Pessoa</span> p = <span class="kw">new</span> <span class="ty">Pessoa</span>(<span class="str">"Rafael Vargas"</span>, <span class="str">38</span>);
+saida.<span class="fn">writeObject</span>(p);</pre>
+
+                <h4>3. Servidor recebe objeto:</h4>
+                <pre><span class="ty">ObjectInputStream</span> entrada = <span class="kw">new</span> <span class="ty">ObjectInputStream</span>(
+    socket.<span class="fn">getInputStream</span>());
+
+<span class="ty">Pessoa</span> p = (<span class="ty">Pessoa</span>) entrada.<span class="fn">readObject</span>();
+System.out.<span class="fn">println</span>(<span class="str">"Nome: "</span> + p.<span class="fn">getNome</span>());</pre>
+            </div>
+        </section>
+
+        <!-- Quiz -->
+        <section class="panel" data-key="quiz">
+            <div class="box">
+                <h3>Quiz — Cliente TCP</h3>
+                <div id="quiz-items"></div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Tabs
+        document.querySelector('.tabs').addEventListener('click', e => {
+            const btn = e.target.closest('.tab'); if (!btn) return;
+            document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+            document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+        });
+
+        // Simulador
+        const clientMsgs = document.getElementById('client-msgs');
+        const serverMsgs = document.getElementById('server-msgs');
+        const clientInput = document.getElementById('client-input');
+
+        function addMsg(container, text, type) {
+            const div = document.createElement('div');
+            div.className = 'chat-msg ' + type;
+            div.textContent = text;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        document.getElementById('client-send').addEventListener('click', () => {
+            const msg = clientInput.value.trim();
+            if (!msg) return;
+
+            addMsg(clientMsgs, msg, 'sent');
+            addMsg(serverMsgs, 'Recebido: ' + msg, 'received');
+
+            // Simula resposta do servidor (toUpperCase)
+            setTimeout(() => {
+                const response = msg.toUpperCase();
+                addMsg(serverMsgs, 'Enviando: ' + response, 'sent');
+                addMsg(clientMsgs, response, 'received');
+            }, 300);
+
+            clientInput.value = '';
+        });
+
+        clientInput.addEventListener('keypress', e => { if (e.key === 'Enter') document.getElementById('client-send').click(); });
+
+        // Quiz
+        const quizzes = [
+            { q: 'Para conectar ao servidor, cliente usa...', opts: ['ServerSocket', 'Socket', 'DatagramSocket'], ans: 1 },
+            { q: 'new Socket("localhost", 8080) conecta...', opts: ['Na porta 8080 do servidor local', 'Cria um servidor', 'Abre arquivo'], ans: 0 },
+            { q: 'ObjectOutputStream.writeObject() envia...', opts: ['Apenas strings', 'Qualquer objeto Serializable', 'Bytes brutos'], ans: 1 },
+            { q: 'Para receber objeto, usamos...', opts: ['readUTF()', 'readObject()', 'readLine()'], ans: 1 },
+            { q: 'Uma classe deve implementar __ para ser enviada por ObjectOutputStream', opts: ['Runnable', 'Serializable', 'Comparable'], ans: 1 }
+        ];
+
+        document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+        document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+                const fb = document.getElementById(`qfb-${qi}`);
+                fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+                fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+            });
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — Banco de Dados em 9 Passos</title>
+    <meta name="description" content="Acesse o material complementar exclusivo do livro Banco de Dados em 9 Passos">
+    <link rel="stylesheet" href="login.css">
+</head>
+
+<body>
+    <!-- Partículas decorativas -->
+    <div class="particles">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="login-card">
+            <!-- Header -->
+            <div class="login-header">
+                <img src="infograficos/capa.jpg" alt="Capa do Livro" class="login-logo">
+                <h1 class="login-title">Material Exclusivo</h1>
+                <p class="login-subtitle">Banco de Dados em 9 Passos</p>
+            </div>
+
+            <!-- Mensagem de feedback -->
+            <div id="message" class="message">
+                <span class="message-icon"></span>
+                <span class="message-text"></span>
+            </div>
+
+            <!-- Formulário de login -->
+            <form id="loginForm" class="login-form">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <div class="input-wrapper">
+                        <input type="email" id="email" name="email" class="form-input" placeholder="seu@email.com"
+                            required autocomplete="email">
+                        <span class="input-icon">📧</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha</label>
+                    <div class="input-wrapper">
+                        <input type="password" id="senha" name="senha" class="form-input" placeholder="Sua senha"
+                            required autocomplete="current-password">
+                        <span class="input-icon">🔒</span>
+                    </div>
+                </div>
+
+                <button type="submit" id="loginBtn" class="login-btn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">Entrar</span>
+                </button>
+            </form>
+
+            <!-- Divider -->
+            <div class="divider">
+                <span class="divider-line"></span>
+                <span class="divider-text">Ainda não tem acesso?</span>
+                <span class="divider-line"></span>
+            </div>
+
+            <!-- Link para cadastro -->
+            <div class="register-section">
+                <p class="register-text">Cadastre-se com o código do seu livro</p>
+                <a href="cadastro.html" class="register-link">
+                    📝 Criar conta
+                </a>
+            </div>
+
+            <!-- Footer -->
+            <div class="login-footer">
+                <p class="footer-text">
+                    © 2026 <a href="https://github.com/ravarmes" target="_blank" rel="noopener"
+                        class="footer-link">Rafael Vargas Mesquita</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="auth.js"></script>
+    <script>
+        // Função para carregar auth.js dinamicamente se necessário
+        async function ensureAuthLoaded() {
+            if (typeof window.login === 'function') {
+                return true;
+            }
+
+            console.log('[Login] auth.js não carregado, tentando carregar dinamicamente...');
+            try {
+                const response = await fetch('auth.js');
+                const code = await response.text();
+                eval(code);
+                console.log('[Login] auth.js carregado dinamicamente com sucesso');
+                return typeof window.login === 'function';
+            } catch (error) {
+                console.error('[Login] Falha ao carregar auth.js:', error);
+                return false;
+            }
+        }
+
+        // Usa 'load' para garantir que todos os scripts externos foram executados
+        window.addEventListener('load', async function () {
+            // Garante que auth.js está carregado
+            const authLoaded = await ensureAuthLoaded();
+            if (!authLoaded) {
+                console.error('[Login] auth.js não pôde ser carregado!');
+                const message = document.getElementById('message');
+                if (message) {
+                    message.classList.add('show', 'error');
+                    message.querySelector('.message-icon').textContent = '❌';
+                    message.querySelector('.message-text').textContent = 'Erro ao carregar sistema de login. Recarregue a página.';
+                }
+                return;
+            }
+
+            // Inicializa Supabase
+            if (typeof initSupabase === 'function') {
+                initSupabase();
+            }
+
+            // Redireciona se já estiver logado
+            if (typeof redirectIfAuthenticated === 'function') {
+                redirectIfAuthenticated();
+            }
+
+            // Form submit handler
+            const form = document.getElementById('loginForm');
+            if (form) {
+                form.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+
+                    // Verifica se login está disponível
+                    if (typeof window.login !== 'function') {
+                        console.error('[Login] window.login não é uma função');
+                        const loaded = await ensureAuthLoaded();
+                        if (!loaded) {
+                            alert('Erro ao carregar sistema de login. Recarregue a página.');
+                            return;
+                        }
+                    }
+
+                    const email = document.getElementById('email').value.trim();
+                    const senha = document.getElementById('senha').value;
+                    const btn = document.getElementById('loginBtn');
+                    const message = document.getElementById('message');
+
+                    // Loading state
+                    btn.classList.add('loading');
+                    btn.disabled = true;
+                    message.classList.remove('show', 'error', 'success');
+
+                    try {
+                        const result = await window.login(email, senha);
+
+                        if (result.success) {
+                            // Sucesso
+                            message.classList.add('show', 'success');
+                            message.querySelector('.message-icon').textContent = '✅';
+                            message.querySelector('.message-text').textContent = `Bem-vindo(a), ${result.nome}!`;
+
+                            // Redireciona após 1 segundo
+                            setTimeout(() => {
+                                window.location.href = window.AUTH_CONFIG.mainPage;
+                            }, 1000);
+                        } else {
+                            // Erro
+                            message.classList.add('show', 'error');
+                            message.querySelector('.message-icon').textContent = '❌';
+                            message.querySelector('.message-text').textContent = result.message;
+                            btn.classList.remove('loading');
+                            btn.disabled = false;
+                        }
+                    } catch (error) {
+                        console.error('Erro no login:', error);
+                        message.classList.add('show', 'error');
+                        message.querySelector('.message-icon').textContent = '❌';
+                        message.querySelector('.message-text').textContent = 'Erro de conexão. Tente novamente.';
+                        btn.classList.remove('loading');
+                        btn.disabled = false;
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+
+</html>

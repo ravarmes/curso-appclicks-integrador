@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Estudo de Caso 3 — UX/UI e Prototipação</title>
+    <style>
+        :root {
+            --bg: #f6f8fb;
+            --surface: #fff;
+            --border: #dde2eb;
+            --text: #1f2937;
+            --muted: #6b7280;
+            --good: #16a34a;
+            --accent: #2563eb;
+        }
+
+        body {
+            margin: 0;
+            font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+            color: var(--text);
+            background: var(--bg);
+        }
+
+        main {
+            padding: 16px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        h2 {
+            margin: 0 0 10px;
+            font-size: 1.4rem;
+            color: var(--accent);
+        }
+
+        h3 {
+            margin: 20px 0 10px;
+            font-size: 1.1rem;
+            color: #111827;
+            border-bottom: 2px solid var(--border);
+            padding-bottom: 5px;
+        }
+
+        .box {
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 20px;
+            background: var(--surface);
+            margin: 16px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 20px;
+            background: #f8fafc;
+            padding: 14px;
+            border-radius: 8px;
+            border-left: 4px solid var(--accent);
+        }
+
+        .step-num {
+            background: var(--accent);
+            color: white;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+            font-size: 0.9rem;
+        }
+
+        .step-content strong {
+            font-size: 1.05rem;
+            color: var(--text);
+        }
+
+        .tool-tag {
+            background: #e0e7ff;
+            color: #3730a3;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: bold;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        .step-content p {
+            margin: 8px 0 0;
+            color: #4b5563;
+            line-height: 1.5;
+        }
+
+        .case-study {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+
+        .case-study h3 {
+            color: #1e3a8a;
+            border-bottom-color: #bfdbfe;
+            margin-top: 0;
+        }
+
+        .img-fluid {
+            max-width: 100%;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-top: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        .case-study p,
+        .case-study ul,
+        .case-study ol {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <main>
+        <h2>Estudo de Caso 3 — UX/UI e Wireframes</h2>
+
+        <div class="box">
+            <h3>Objetivo da Semana</h3>
+            <p>Traduzir os Requisitos Funcionais definidos na semana anterior em interfaces visuais de baixa fidelidade
+                (Wireframes). Isso garante que o grupo planeje as telas antes da fase de desenvolvimento prático.</p>
+        </div>
+
+        <div class="box">
+            <h3>Passo a Passo da Atividade</h3>
+
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <strong>Rascunhe as Telas Necessárias</strong> <span class="tool-tag">Papel e Caneta</span>
+                    <p>Mapeiem quais telas são essenciais para executar os seus RFs. Por exemplo, pelo RF01, vocês
+                        precisam de "Login/Cadastro". Para o RF02, "Formulário de Entrada", e assim por diante. Façam
+                        rascunhos rápidos.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <strong>Digitalize em Wireframes</strong> <span class="tool-tag">Balsamiq / Figma / Draw.io</span>
+                    <p>Utilizem ferramentas para transpor o papel no formato Wireframe (modelos apenas em preto, branco
+                        e escala de cinza, focados nos componentes e navegação, como botões, textos, listas). Crie no
+                        mínimo 5 telas primárias.</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">3</div>
+                <div class="step-content">
+                    <strong>Formate o Documento de Requisitos v1.0</strong> <span class="tool-tag">Word / Docs</span>
+                    <p>Anexe as 5 imagens (Wireframes) com legenda embaixo de cada uma que explique o objetivo da tela
+                        dentro do documento da Semana 2. Esse Documento unificado é a base que guiará o restante do
+                        projeto!</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-num">📄</div>
+                <div class="step-content">
+                    <strong>Consolidação no Template Oficial</strong> <span class="tool-tag">Google Docs</span>
+                    <p>Para concluir as atividades desta semana, reúna todas as informações e artefatos gerados nos
+                        passos anteriores e preencha o template oficial de entrega. Faça uma cópia do documento para a
+                        sua conta Google e compartilhe-o com o professor.</p>
+                    <p><a href="https://docs.google.com/document/d/1lfNbphdfHkB6fu_37dXa0uSEB8nWPbVicgk5dmnJtxQ/edit?usp=sharing"
+                            target="_blank"
+                            style="color: var(--accent); font-weight: bold; text-decoration: none;">Acessar Template:
+                            Documento de Requisitos v2.0</a></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="case-study">
+            <h3>📱 Estudo de Caso: FinanCampus</h3>
+            <p>Veja como o grupo do <strong>FinanCampus</strong> realizou a prototipação e documentou os requisitos
+                nesta semana.</p>
+
+            <img src="../images/wireframes_mockup.png" class="img-fluid" alt="Wireframes de Telas FinanCampus">
+            <br /><br />
+
+            <p><strong>Wireframes criados no Figma (6 telas):</strong></p>
+            <ol>
+                <li><strong>Login / Cadastro:</strong> campos de e-mail e senha, botão de entrar e
+                    link para criar conta.</li>
+                <li><strong>Home / Dashboard:</strong> saldo do mês em destaque, últimas 3 transações
+                    e botão flutuante (+) para nova transação.</li>
+                <li><strong>Lista de Transações:</strong> ListView com filtro por mês, tipo e categoria;
+                    cada item exibe ícone, tipo, descrição, valor e data.</li>
+                <li><strong>Nova Transação:</strong> formulário com campos de tipo (Dropdown
+                    Renda/Despesa), valor (numérico),
+                    categoria (Dropdown), data (DatePicker) e descrição (opcional).</li>
+                <li><strong>Detalhe / Editar Transação:</strong> exibe os dados da transação com botões
+                    de editar e excluir.</li>
+                <li><strong>Configurações:</strong> e-mail do usuário e botão de logout.</li>
+            </ol>
+            <p><strong>Documento de Requisitos v1.0</strong> entregue com 8 páginas incluindo:
+                frase de visão, persona da Mariana, 8 RFs, 4 RNFs e prints dos 6 wireframes
+                do Figma.</p>
+            <p><strong>Heurística aplicada:</strong> o grupo adicionou uma mensagem de
+                <em>feedback visual</em> (SnackBar de sucesso) após salvar uma transação —
+                aplicando a heurística de <em>Visibilidade do Status do Sistema</em>.
+            </p>
+        </div>
+    </main>
+</body>
+
+</html>

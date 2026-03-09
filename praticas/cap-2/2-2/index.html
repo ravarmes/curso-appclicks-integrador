@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 2.2 — CRUD com PreparedStatement</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --jdbc: #336791;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #e0f2fe;
+      border-color: var(--jdbc);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #e0f2fe;
+    }
+
+    .btn.insert {
+      border-color: #16a34a;
+      background: #dcfce7;
+    }
+
+    .btn.update {
+      border-color: #2563eb;
+      background: #dbeafe;
+    }
+
+    .btn.delete {
+      border-color: #dc2626;
+      background: #fee2e2;
+    }
+
+    .btn.select {
+      border-color: #7c3aed;
+      background: #ede9fe;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    .danger {
+      color: #fca5a5;
+    }
+
+    .crud-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .crud-tab {
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .crud-tab.active {
+      color: white;
+    }
+
+    .crud-tab.insert {
+      background: #16a34a;
+    }
+
+    .crud-tab.update {
+      background: #2563eb;
+    }
+
+    .crud-tab.delete {
+      background: #dc2626;
+    }
+
+    .crud-tab.select {
+      background: #7c3aed;
+    }
+
+    .warning-box {
+      background: #fef3c7;
+      border: 1px solid #f59e0b;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+
+    .placeholder {
+      background: #fde68a;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      width: 100%;
+      box-sizing: border-box;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 2.2 — CRUD com PreparedStatement</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="conceito">Conceito</button>
+      <button class="tab" data-key="operacoes">Operações CRUD</button>
+      <button class="tab" data-key="simulador">Simulador</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Conceito -->
+    <section class="panel active" data-key="conceito">
+      <div class="box">
+        <h3>Por que PreparedStatement?</h3>
+
+        <div class="grid">
+          <div>
+            <h4>❌ Statement (Vulnerável)</h4>
+            <pre><span class="ty">String</span> sql = <span class="str">"SELECT * FROM aluno WHERE nome = '"</span> 
+           + nome + <span class="str">"'"</span>;
+<span class="cm">// Se nome = "'; DROP TABLE aluno; --"</span>
+<span class="cm">// SQL Injection!</span></pre>
+          </div>
+          <div>
+            <h4>✅ PreparedStatement (Seguro)</h4>
+            <pre><span class="ty">String</span> sql = <span class="str">"SELECT * FROM aluno WHERE nome = ?"</span>;
+<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+ps.<span class="fn">setString</span>(<span class="str">1</span>, nome);
+<span class="cm">// Parâmetro escapado automaticamente!</span></pre>
+          </div>
+        </div>
+
+        <div class="warning-box">
+          <strong>⚠️ SQL Injection</strong> — Ataque onde o invasor insere comandos maliciosos através de entradas do
+          usuário.
+          <strong>SEMPRE use PreparedStatement</strong> com parâmetros.
+        </div>
+
+        <h4>Vantagens do PreparedStatement:</h4>
+        <ul>
+          <li>✅ <strong>Segurança</strong> — Previne SQL Injection</li>
+          <li>✅ <strong>Performance</strong> — Query compilada uma vez, executada várias</li>
+          <li>✅ <strong>Legibilidade</strong> — SQL mais limpo sem concatenação</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Operações -->
+    <section class="panel" data-key="operacoes">
+      <div class="box">
+        <h3>Operações CRUD</h3>
+
+        <div class="crud-tabs">
+          <span class="crud-tab insert active" data-op="insert">INSERT</span>
+          <span class="crud-tab select" data-op="select">SELECT</span>
+          <span class="crud-tab update" data-op="update">UPDATE</span>
+          <span class="crud-tab delete" data-op="delete">DELETE</span>
+        </div>
+
+        <div id="crud-content">
+          <h4>INSERT — Inserir registro</h4>
+          <pre><span class="ty">String</span> sql = <span class="str">"INSERT INTO aluno (nome, email) VALUES (?, ?)"</span>;
+<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+ps.<span class="fn">setString</span>(<span class="str">1</span>, <span class="str">"João"</span>);      <span class="cm">// primeiro ?</span>
+ps.<span class="fn">setString</span>(<span class="str">2</span>, <span class="str">"joao@email.com"</span>); <span class="cm">// segundo ?</span>
+<span class="kw">int</span> rows = ps.<span class="fn">executeUpdate</span>();  <span class="cm">// retorna linhas afetadas</span></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- Simulador -->
+    <section class="panel" data-key="simulador">
+      <div class="box">
+        <h3>Construtor de Query</h3>
+        <p class="note">Preencha os valores e veja a query parametrizada:</p>
+
+        <div class="grid">
+          <div>
+            <h4>Dados do Aluno:</h4>
+            <div style="margin:8px 0;"><label>ID:</label><input type="number" id="sim-id" value="1"></div>
+            <div style="margin:8px 0;"><label>Nome:</label><input type="text" id="sim-nome" value="Maria Silva"></div>
+            <div style="margin:8px 0;"><label>Email:</label><input type="text" id="sim-email" value="maria@email.com">
+            </div>
+
+            <h4>Operação:</h4>
+            <button class="btn insert" data-op="insert">INSERT</button>
+            <button class="btn update" data-op="update">UPDATE</button>
+            <button class="btn delete" data-op="delete">DELETE</button>
+          </div>
+          <div>
+            <h4>Código Gerado:</h4>
+            <pre id="sim-code"><span class="cm">// Selecione uma operação</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — PreparedStatement</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // CRUD tabs
+    const crudExamples = {
+      insert: `<h4>INSERT — Inserir registro</h4>
+<pre><span class="ty">String</span> sql = <span class="str">"INSERT INTO aluno (nome, email) VALUES (?, ?)"</span>;
+<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+ps.<span class="fn">setString</span>(<span class="str">1</span>, <span class="str">"João"</span>);
+ps.<span class="fn">setString</span>(<span class="str">2</span>, <span class="str">"joao@email.com"</span>);
+<span class="kw">int</span> rows = ps.<span class="fn">executeUpdate</span>();</pre>`,
+      select: `<h4>SELECT — Consultar registros</h4>
+<pre><span class="ty">String</span> sql = <span class="str">"SELECT * FROM aluno WHERE id = ?"</span>;
+<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+ps.<span class="fn">setInt</span>(<span class="str">1</span>, <span class="str">1</span>);
+<span class="ty">ResultSet</span> rs = ps.<span class="fn">executeQuery</span>();  <span class="cm">// retorna ResultSet</span>
+<span class="kw">while</span> (rs.<span class="fn">next</span>()) {
+    System.out.<span class="fn">println</span>(rs.<span class="fn">getString</span>(<span class="str">"nome"</span>));
+}</pre>`,
+      update: `<h4>UPDATE — Atualizar registro</h4>
+<pre><span class="ty">String</span> sql = <span class="str">"UPDATE aluno SET email = ? WHERE id = ?"</span>;
+<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+ps.<span class="fn">setString</span>(<span class="str">1</span>, <span class="str">"novo@email.com"</span>);
+ps.<span class="fn">setInt</span>(<span class="str">2</span>, <span class="str">1</span>);
+<span class="kw">int</span> rows = ps.<span class="fn">executeUpdate</span>();</pre>`,
+      delete: `<h4>DELETE — Remover registro</h4>
+<pre><span class="ty">String</span> sql = <span class="str">"DELETE FROM aluno WHERE id = ?"</span>;
+<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+ps.<span class="fn">setInt</span>(<span class="str">1</span>, <span class="str">1</span>);
+<span class="kw">int</span> rows = ps.<span class="fn">executeUpdate</span>();</pre>`
+    };
+
+    document.querySelectorAll('.crud-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.crud-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('crud-content').innerHTML = crudExamples[tab.dataset.op];
+      });
+    });
+
+    // Simulador
+    document.querySelectorAll('[data-op]').forEach(btn => {
+      if (!btn.classList.contains('crud-tab')) {
+        btn.addEventListener('click', () => {
+          const id = document.getElementById('sim-id').value;
+          const nome = document.getElementById('sim-nome').value;
+          const email = document.getElementById('sim-email').value;
+          const op = btn.dataset.op;
+          let code = '';
+
+          if (op === 'insert') {
+            code = `<span class="ty">String</span> sql = <span class="str">"INSERT INTO aluno (nome, email) VALUES (?, ?)"</span>;
+<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+ps.<span class="fn">setString</span>(<span class="str">1</span>, <span class="str">"${nome}"</span>);
+ps.<span class="fn">setString</span>(<span class="str">2</span>, <span class="str">"${email}"</span>);
+ps.<span class="fn">executeUpdate</span>();`;
+          } else if (op === 'update') {
+            code = `<span class="ty">String</span> sql = <span class="str">"UPDATE aluno SET nome = ?, email = ? WHERE id = ?"</span>;
+<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+ps.<span class="fn">setString</span>(<span class="str">1</span>, <span class="str">"${nome}"</span>);
+ps.<span class="fn">setString</span>(<span class="str">2</span>, <span class="str">"${email}"</span>);
+ps.<span class="fn">setInt</span>(<span class="str">3</span>, <span class="str">${id}</span>);
+ps.<span class="fn">executeUpdate</span>();`;
+          } else if (op === 'delete') {
+            code = `<span class="ty">String</span> sql = <span class="str">"DELETE FROM aluno WHERE id = ?"</span>;
+<span class="ty">PreparedStatement</span> ps = conn.<span class="fn">prepareStatement</span>(sql);
+ps.<span class="fn">setInt</span>(<span class="str">1</span>, <span class="str">${id}</span>);
+ps.<span class="fn">executeUpdate</span>();`;
+          }
+          document.getElementById('sim-code').innerHTML = code;
+        });
+      }
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'O símbolo ? no PreparedStatement representa...', opts: ['Comentário', 'Parâmetro', 'Wildcard'], ans: 1 },
+      { q: 'Qual método define um parâmetro String?', opts: ['setString()', 'putString()', 'addString()'], ans: 0 },
+      { q: 'executeUpdate() retorna...', opts: ['ResultSet', 'int (linhas afetadas)', 'boolean'], ans: 1 },
+      { q: 'executeQuery() é usado para qual comando?', opts: ['INSERT', 'UPDATE', 'SELECT'], ans: 2 },
+      { q: 'O primeiro parâmetro (?) tem índice...', opts: ['0', '1', '-1'], ans: 1 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+        fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

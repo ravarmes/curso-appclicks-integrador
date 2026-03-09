@@ -1,0 +1,429 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 3.4 — Integração MVC + DAO</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --pattern: #7c3aed;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #ede9fe;
+      border-color: var(--pattern);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #ede9fe;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    /* Architecture Diagram */
+    .arch-diagram {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin: 20px 0;
+    }
+
+    .arch-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .arch-box {
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 16px;
+      text-align: center;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .arch-box:hover {
+      transform: scale(1.05);
+    }
+
+    .arch-box.view {
+      border-color: #3b82f6;
+      background: #dbeafe;
+    }
+
+    .arch-box.controller {
+      border-color: var(--pattern);
+      background: #ede9fe;
+    }
+
+    .arch-box.dao {
+      border-color: #10b981;
+      background: #d1fae5;
+    }
+
+    .arch-box.model {
+      border-color: #f59e0b;
+      background: #fef3c7;
+    }
+
+    .arch-box.db {
+      border-color: #6b7280;
+      background: #f3f4f6;
+    }
+
+    .arch-box.selected {
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.4);
+    }
+
+    .arch-arrow {
+      color: var(--muted);
+      font-size: 1.2rem;
+    }
+
+    .arch-detail {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+      min-height: 120px;
+    }
+
+    /* Flow animation */
+    .flow-step {
+      padding: 8px 12px;
+      margin: 4px;
+      border-radius: 8px;
+      display: inline-block;
+    }
+
+    .flow-step.active {
+      animation: pulse 0.5s ease-in-out;
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 3.4 — Integração MVC + DAO + Factory</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="arquitetura">Arquitetura</button>
+      <button class="tab" data-key="fluxo">Fluxo de Dados</button>
+      <button class="tab" data-key="codigo">Código Completo</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Arquitetura -->
+    <section class="panel active" data-key="arquitetura">
+      <div class="box">
+        <h3>Arquitetura em Camadas</h3>
+        <p class="note">Clique em cada camada para ver detalhes:</p>
+
+        <div class="arch-diagram">
+          <div class="arch-box view" data-layer="view">🖥️ View (FXML)</div>
+          <div class="arch-arrow">↕</div>
+          <div class="arch-box controller selected" data-layer="controller">⚙️ Controller</div>
+          <div class="arch-arrow">↕</div>
+          <div class="arch-row">
+            <div class="arch-box dao" data-layer="dao">📦 DAO (Interface)</div>
+            <div class="arch-arrow">←</div>
+            <div class="arch-box model" data-layer="factory">🏭 Factory</div>
+          </div>
+          <div class="arch-arrow">↕</div>
+          <div class="arch-box db" data-layer="db">🐘 PostgreSQL</div>
+        </div>
+
+        <div class="arch-detail" id="arch-detail">
+          <h4>Controller — Mediador Central</h4>
+          <ul>
+            <li>Recebe eventos da View (@FXML)</li>
+            <li>Obtém DAO via Factory</li>
+            <li>Chama métodos do DAO</li>
+            <li>Atualiza View com resultados</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fluxo -->
+    <section class="panel" data-key="fluxo">
+      <div class="box">
+        <h3>Fluxo: Salvar Aluno</h3>
+        <p class="note">Clique em "Iniciar" para ver o fluxo passo a passo:</p>
+
+        <div id="flow-diagram" style="text-align:center;margin:20px 0;">
+          <span class="flow-step" style="background:#dbeafe;" id="f1">1. View: clique no botão</span>
+          <span style="color:#6b7280;">→</span>
+          <span class="flow-step" style="background:#ede9fe;" id="f2">2. Controller: salvar()</span>
+          <span style="color:#6b7280;">→</span>
+          <span class="flow-step" style="background:#fef3c7;" id="f3">3. Factory: getDAO()</span>
+          <span style="color:#6b7280;">→</span>
+          <span class="flow-step" style="background:#d1fae5;" id="f4">4. DAO: inserir()</span>
+          <span style="color:#6b7280;">→</span>
+          <span class="flow-step" style="background:#f3f4f6;" id="f5">5. BD: INSERT</span>
+        </div>
+
+        <div style="text-align:center;">
+          <button class="btn" id="start-flow">▶ Iniciar Animação</button>
+        </div>
+
+        <pre id="flow-code"
+          style="margin-top:16px;"><span class="cm">// Clique em Iniciar para ver o código em cada etapa</span></pre>
+      </div>
+    </section>
+
+    <!-- Código -->
+    <section class="panel" data-key="codigo">
+      <div class="box">
+        <h3>Exemplo Completo de Integração</h3>
+
+        <pre><span class="cm">// 1. Model (Aluno.java)</span>
+<span class="kw">public class</span> <span class="ty">Aluno</span> {
+    <span class="kw">private int</span> id;
+    <span class="kw">private</span> <span class="ty">String</span> nome, email;
+    <span class="cm">// getters, setters, construtor...</span>
+}
+
+<span class="cm">// 2. DAO Interface</span>
+<span class="kw">public interface</span> <span class="ty">AlunoDAO</span> {
+    <span class="kw">void</span> <span class="fn">inserir</span>(<span class="ty">Aluno</span> a);
+    <span class="ty">List</span>&lt;<span class="ty">Aluno</span>&gt; <span class="fn">listar</span>();
+}
+
+<span class="cm">// 3. Factory</span>
+<span class="kw">public class</span> <span class="ty">DAOFactory</span> {
+    <span class="kw">public static</span> <span class="ty">AlunoDAO</span> <span class="fn">createAlunoDAO</span>() {
+        <span class="kw">return new</span> <span class="ty">AlunoDAOJDBC</span>(<span class="fn">getConnection</span>());
+    }
+}
+
+<span class="cm">// 4. Controller</span>
+<span class="kw">public class</span> <span class="ty">AlunoController</span> {
+    <span class="ann">@FXML</span> <span class="ty">TextField</span> txtNome;
+    <span class="ann">@FXML</span> <span class="ty">TableView</span>&lt;<span class="ty">Aluno</span>&gt; tabela;
+    
+    <span class="kw">private</span> <span class="ty">AlunoDAO</span> dao = <span class="ty">DAOFactory</span>.<span class="fn">createAlunoDAO</span>();
+    
+    <span class="ann">@FXML</span>
+    <span class="kw">void</span> <span class="fn">salvar</span>() {
+        <span class="ty">Aluno</span> a = <span class="kw">new</span> <span class="ty">Aluno</span>(txtNome.<span class="fn">getText</span>());
+        dao.<span class="fn">inserir</span>(a);
+        tabela.<span class="fn">setItems</span>(<span class="ty">FXCollections</span>.<span class="fn">observableList</span>(dao.<span class="fn">listar</span>()));
+    }
+}</pre>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Integração</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Arquitetura
+    const layerDetails = {
+      view: `<h4>View (FXML)</h4><ul><li>Define layout da tela</li><li>Vincula ao Controller via fx:controller</li><li>Captura eventos do usuário</li></ul>`,
+      controller: `<h4>Controller</h4><ul><li>Recebe eventos da View (@FXML)</li><li>Obtém DAO via Factory</li><li>Chama métodos do DAO</li><li>Atualiza View com resultados</li></ul>`,
+      dao: `<h4>DAO (Data Access Object)</h4><ul><li>Interface define contrato CRUD</li><li>Implementação contém SQL</li><li>Isolamenta persistência</li></ul>`,
+      factory: `<h4>Factory</h4><ul><li>Cria instâncias de DAO</li><li>Gerencia conexão (singleton)</li><li>Permite trocar implementação</li></ul>`,
+      db: `<h4>Banco de Dados</h4><ul><li>PostgreSQL, MySQL, etc.</li><li>Armazena dados persistentes</li><li>Acessado apenas via DAO</li></ul>`
+    };
+
+    document.querySelectorAll('.arch-box').forEach(box => {
+      box.addEventListener('click', () => {
+        document.querySelectorAll('.arch-box').forEach(b => b.classList.remove('selected'));
+        box.classList.add('selected');
+        document.getElementById('arch-detail').innerHTML = layerDetails[box.dataset.layer];
+      });
+    });
+
+    // Fluxo
+    const flowCodes = [
+      `<span class="cm">// 1. View: usuário clica no botão "Salvar"</span>
+<span class="cm">// FXML: onAction="#salvar"</span>`,
+      `<span class="cm">// 2. Controller: método salvar() é chamado</span>
+@FXML void salvar() {
+    String nome = txtNome.getText();
+    ...`,
+      `<span class="cm">// 3. Factory: obtém instância do DAO</span>
+AlunoDAO dao = DAOFactory.createAlunoDAO();`,
+      `<span class="cm">// 4. DAO: executa operação no banco</span>
+dao.inserir(new Aluno(nome));`,
+      `<span class="cm">// 5. BD: executa INSERT</span>
+INSERT INTO aluno (nome) VALUES ('João');`
+    ];
+
+    document.getElementById('start-flow').addEventListener('click', () => {
+      const steps = ['f1', 'f2', 'f3', 'f4', 'f5'];
+      let i = 0;
+      const interval = setInterval(() => {
+        steps.forEach(s => document.getElementById(s).classList.remove('active'));
+        if (i < steps.length) {
+          document.getElementById(steps[i]).classList.add('active');
+          document.getElementById('flow-code').innerHTML = flowCodes[i];
+          i++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 1000);
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'O Controller obtém o DAO via...', opts: ['new AlunoDAO()', 'DAOFactory', 'View'], ans: 1 },
+      { q: 'A View conhece qual camada?', opts: ['Apenas Controller', 'Controller e DAO', 'Todas'], ans: 0 },
+      { q: 'O DAO acessa diretamente...', opts: ['A View', 'O Controller', 'O Banco de Dados'], ans: 2 },
+      { q: 'Para trocar de PostgreSQL para MySQL, alteramos...', opts: ['A View', 'Apenas o DAO/Factory', 'O Controller'], ans: 1 },
+      { q: 'fx:controller no FXML define...', opts: ['O banco de dados', 'A classe Controller', 'O layout'], ans: 1 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+        fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

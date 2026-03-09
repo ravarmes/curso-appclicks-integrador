@@ -1,0 +1,650 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 1.1 — Componentes Básicos JavaFX</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --accent: #2563eb;
+      --javafx: #f7931e;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #fff7ed;
+      border-color: var(--javafx);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #fff7ed;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+    .diagram { display: flex; flex-direction: column; gap: 16px; align-items: center; padding: 10px; }
+    .diagram-row { display: flex; gap: 18px; align-items: center; justify-content: center; flex-wrap: wrap; }
+    .diagram-col { display: flex; flex-direction: column; gap: 12px; align-items: center; }
+    .diagram-box {
+      border-radius: 14px;
+      padding: 14px 18px;
+      min-width: 140px;
+      text-align: center;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+      user-select: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,.08);
+      transition: transform .15s ease, box-shadow .15s ease, outline-color .15s ease;
+      outline: 3px solid transparent;
+    }
+    .diagram-box:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,.12); }
+    .diagram-box.selected { outline-color: #11182722; }
+    .stage { background: linear-gradient(135deg,#60a5fa,#2563eb); }
+    .scene { background: linear-gradient(135deg,#34d399,#059669); }
+    .layout { background: linear-gradient(135deg,#f59e0b,#d97706); }
+    .node { background: linear-gradient(135deg,#a78bfa,#7c3aed); }
+    .arrow {
+      font-size: 20px;
+      color: #6b7280;
+      font-weight: 800;
+    }
+    .code-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #0b1220;
+      color: #e2e8f0;
+      padding: 12px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+    .code-line { display: block; padding: 2px 6px; border-radius: 6px; }
+    .code-line.hl { background: #1f2937; }
+    .legend { color: var(--muted); font-size: .92rem; }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    .fn {
+      color: #fde68a;
+    }
+
+    /* Hierarquia visual */
+    .hierarchy {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+    }
+
+    .hierarchy-node {
+      background: linear-gradient(135deg, #fff7ed, #ffedd5);
+      border: 2px solid var(--javafx);
+      border-radius: 10px;
+      padding: 12px 24px;
+      text-align: center;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .hierarchy-node:hover {
+      transform: scale(1.05);
+    }
+
+    .hierarchy-node.selected {
+      background: var(--javafx);
+      color: white;
+    }
+
+    .hierarchy-arrow {
+      color: var(--muted);
+      font-size: 1.2rem;
+    }
+
+    .hierarchy-children {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .hierarchy-node.child {
+      background: linear-gradient(135deg, #f0f9ff, #e0f2fe);
+      border-color: #0ea5e9;
+      font-size: 0.9rem;
+      padding: 8px 16px;
+    }
+
+    .hierarchy-detail {
+      margin-top: 16px;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+      min-height: 80px;
+    }
+
+    /* Simulador */
+    .preview-area {
+      background: #f8fafc;
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 20px;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .sim-label {
+      font-size: 14px;
+      color: var(--text);
+    }
+
+    .sim-button {
+      background: linear-gradient(to bottom, #f5f5f5, #e0e0e0);
+      border: 1px solid #ccc;
+      padding: 6px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .sim-button:active {
+      background: linear-gradient(to bottom, #e0e0e0, #d0d0d0);
+    }
+
+    .sim-textfield {
+      border: 1px solid #ccc;
+      padding: 6px 10px;
+      border-radius: 4px;
+      font-size: 14px;
+      width: 200px;
+    }
+
+    .sim-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .controls-panel {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .control-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+    }
+
+    .control-row label {
+      width: 80px;
+      font-size: 0.85rem;
+    }
+
+    .control-row input[type="text"],
+    .control-row input[type="number"],
+    .control-row select {
+      flex: 1;
+      padding: 4px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 1.1 — Componentes Básicos do JavaFX</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="hierarquia">Hierarquia</button>
+      <button class="tab" data-key="mapa">Mapa Visual</button>
+      <button class="tab" data-key="componentes">Componentes</button>
+      <button class="tab" data-key="simulador">Simulador</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Hierarquia -->
+    <section class="panel active" data-key="hierarquia">
+      <div class="box">
+        <h3>Hierarquia de Classes JavaFX</h3>
+        <p class="note">Clique em um nó para ver detalhes:</p>
+        <div class="hierarchy">
+          <div class="hierarchy-node" data-node="node">Node</div>
+          <div class="hierarchy-arrow">↓</div>
+          <div class="hierarchy-node" data-node="parent">Parent</div>
+          <div class="hierarchy-arrow">↓</div>
+          <div class="hierarchy-node" data-node="region">Region</div>
+          <div class="hierarchy-arrow">↓</div>
+          <div class="hierarchy-node" data-node="control">Control</div>
+          <div class="hierarchy-arrow">↓</div>
+          <div class="hierarchy-children">
+            <div class="hierarchy-node child" data-node="button">Button</div>
+            <div class="hierarchy-node child" data-node="label">Label</div>
+            <div class="hierarchy-node child" data-node="textfield">TextField</div>
+            <div class="hierarchy-node child" data-node="checkbox">CheckBox</div>
+          </div>
+        </div>
+        <div class="hierarchy-detail" id="hierarchy-detail">
+          <p><strong>Node</strong> — Classe base de todos os elementos visuais no JavaFX. Possui propriedades como:</p>
+          <ul>
+            <li><code>id</code> — identificador único (CSS)</li>
+            <li><code>style</code> — estilos inline CSS</li>
+            <li><code>visible</code> — controla visibilidade</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Componentes -->
+    <section class="panel" data-key="componentes">
+      <div class="box">
+        <h3>Principais Componentes de Entrada</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Componente</th>
+              <th>Descrição</th>
+              <th>Exemplo de Código</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Label</strong></td>
+              <td>Exibe texto não editável</td>
+              <td><code>new Label("Olá!")</code></td>
+            </tr>
+            <tr>
+              <td><strong>Button</strong></td>
+              <td>Botão clicável</td>
+              <td><code>new Button("Clique")</code></td>
+            </tr>
+            <tr>
+              <td><strong>TextField</strong></td>
+              <td>Campo de entrada de texto</td>
+              <td><code>new TextField()</code></td>
+            </tr>
+            <tr>
+              <td><strong>CheckBox</strong></td>
+              <td>Caixa de seleção</td>
+              <td><code>new CheckBox("Aceito")</code></td>
+            </tr>
+            <tr>
+              <td><strong>ComboBox</strong></td>
+              <td>Lista suspensa</td>
+              <td><code>new ComboBox&lt;&gt;()</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <h4>Exemplo Completo:</h4>
+        <pre><span class="kw">import</span> javafx.application.Application;
+<span class="kw">import</span> javafx.scene.Scene;
+<span class="kw">import</span> javafx.scene.control.*;
+<span class="kw">import</span> javafx.scene.layout.VBox;
+<span class="kw">import</span> javafx.stage.Stage;
+
+<span class="kw">public class</span> <span class="ty">ExemploComponentes</span> <span class="kw">extends</span> <span class="ty">Application</span> {
+    <span class="kw">@Override</span>
+    <span class="kw">public void</span> <span class="fn">start</span>(<span class="ty">Stage</span> stage) {
+        <span class="ty">Label</span> label = <span class="kw">new</span> <span class="ty">Label</span>(<span class="str">"Digite seu nome:"</span>);
+        <span class="ty">TextField</span> campo = <span class="kw">new</span> <span class="ty">TextField</span>();
+        <span class="ty">Button</span> btn = <span class="kw">new</span> <span class="ty">Button</span>(<span class="str">"Enviar"</span>);
+        
+        <span class="ty">VBox</span> root = <span class="kw">new</span> <span class="ty">VBox</span>(<span class="str">10</span>, label, campo, btn);
+        stage.<span class="fn">setScene</span>(<span class="kw">new</span> <span class="ty">Scene</span>(root, <span class="str">300</span>, <span class="str">150</span>));
+        stage.<span class="fn">show</span>();
+    }
+}</pre>
+      </div>
+    </section>
+
+    <!-- Simulador -->
+    <section class="panel" data-key="simulador">
+      <div class="box">
+        <h3>Simulador de Componentes</h3>
+        <p class="note">Modifique as propriedades e veja o resultado em tempo real:</p>
+        <div class="grid">
+          <div class="controls-panel">
+            <h4>Propriedades do Label</h4>
+            <div class="control-row">
+              <label>Texto:</label>
+              <input type="text" id="label-text" value="Olá, JavaFX!">
+            </div>
+            <div class="control-row">
+              <label>Cor:</label>
+              <select id="label-color">
+                <option value="#1f2937">Preto</option>
+                <option value="#dc2626">Vermelho</option>
+                <option value="#2563eb">Azul</option>
+                <option value="#16a34a">Verde</option>
+              </select>
+            </div>
+            <h4>Propriedades do Button</h4>
+            <div class="control-row">
+              <label>Texto:</label>
+              <input type="text" id="btn-text" value="Clique Aqui">
+            </div>
+            <div class="control-row">
+              <label>Desativado:</label>
+              <input type="checkbox" id="btn-disabled">
+            </div>
+            <h4>Propriedades do TextField</h4>
+            <div class="control-row">
+              <label>Placeholder:</label>
+              <input type="text" id="tf-prompt" value="Digite algo...">
+            </div>
+          </div>
+          <div>
+            <h4>Preview (Janela JavaFX simulada):</h4>
+            <div class="preview-area" id="preview">
+              <span class="sim-label" id="sim-label">Olá, JavaFX!</span>
+              <button class="sim-button" id="sim-button">Clique Aqui</button>
+              <input type="text" class="sim-textfield" id="sim-textfield" placeholder="Digite algo...">
+            </div>
+            <p class="note" id="sim-feedback"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Componentes JavaFX</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+
+    <section class="panel" data-key="mapa">
+      <div class="box">
+        <h3>Mapa Visual — Stage, Scene, Layout e Nodes</h3>
+        <div class="grid2">
+          <div>
+            <div class="diagram">
+              <div class="diagram-col">
+                <div class="diagram-box stage" data-part="stage">Stage</div>
+                <div class="arrow">↓</div>
+                <div class="diagram-box scene" data-part="scene">Scene</div>
+                <div class="arrow">↓</div>
+                <div class="diagram-box layout" data-part="layout">Layout</div>
+              </div>
+              <div class="diagram-row">
+                <div class="arrow">↘</div>
+                <div class="arrow">↓</div>
+                <div class="arrow">↙</div>
+              </div>
+              <div class="diagram-row">
+                <div class="diagram-box node" data-part="button">Button</div>
+                <div class="diagram-box node" data-part="label">Label</div>
+              </div>
+              <div class="diagram-row">
+                <div class="diagram-box node" data-part="textfield">TextField</div>
+              </div>
+            </div>
+            <p class="legend">Clique em um bloco para destacar o trecho de código correspondente.</p>
+          </div>
+          <div class="code-box" id="code-box">
+<span class="code-line" data-part="stage">Stage stage = new Stage();</span>
+<span class="code-line" data-part="stage">stage.setTitle("Janela JavaFX");</span>
+<span class="code-line" data-part="label">Label label = new Label("Olá!");</span>
+<span class="code-line" data-part="button">Button button = new Button("Click");</span>
+<span class="code-line" data-part="textfield">TextField textField = new TextField();</span>
+<span class="code-line" data-part="layout">VBox root = new VBox(10, label, button, textField);</span>
+<span class="code-line" data-part="scene">Scene scene = new Scene(root, 360, 220);</span>
+<span class="code-line" data-part="stage">stage.setScene(scene);</span>
+<span class="code-line" data-part="stage">stage.show();</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Hierarquia
+    const hierarchyDetails = {
+      node: `<p><strong>Node</strong> — Classe base abstrata de todos os elementos visuais.</p>
+                   <ul><li><code>id</code>, <code>style</code>, <code>visible</code>, <code>opacity</code></li></ul>`,
+      parent: `<p><strong>Parent</strong> — Estende Node. Pode conter filhos (children).</p>
+                     <ul><li>Usada como base para contêineres</li></ul>`,
+      region: `<p><strong>Region</strong> — Estende Parent. Permite uso de CSS para background, bordas.</p>
+                     <ul><li>Base para layouts (VBox, HBox, GridPane...)</li></ul>`,
+      control: `<p><strong>Control</strong> — Estende Region. Representa componentes de UI com skin.</p>
+                      <ul><li>Base para Button, Label, TextField, etc.</li></ul>`,
+      button: `<p><strong>Button</strong> — Botão clicável que dispara ActionEvent.</p>
+                     <pre>Button btn = new Button("OK");
+btn.setOnAction(e -> System.out.println("Clicado!"));</pre>`,
+      label: `<p><strong>Label</strong> — Exibe texto não editável. Pode incluir gráfico.</p>
+                    <pre>Label lbl = new Label("Nome:");
+lbl.setStyle("-fx-font-size: 14px;");</pre>`,
+      textfield: `<p><strong>TextField</strong> — Campo de entrada de texto em uma linha.</p>
+                        <pre>TextField tf = new TextField();
+tf.setPromptText("Digite aqui...");
+String texto = tf.getText();</pre>`,
+      checkbox: `<p><strong>CheckBox</strong> — Caixa de seleção com estado booleano.</p>
+                       <pre>CheckBox cb = new CheckBox("Lembrar");
+boolean marcado = cb.isSelected();</pre>`
+    };
+
+    document.querySelectorAll('.hierarchy-node').forEach(node => {
+      node.addEventListener('click', () => {
+        document.querySelectorAll('.hierarchy-node').forEach(n => n.classList.remove('selected'));
+        node.classList.add('selected');
+        document.getElementById('hierarchy-detail').innerHTML = hierarchyDetails[node.dataset.node] || '';
+      });
+    });
+
+    // Simulador
+    const labelText = document.getElementById('label-text');
+    const labelColor = document.getElementById('label-color');
+    const btnText = document.getElementById('btn-text');
+    const btnDisabled = document.getElementById('btn-disabled');
+    const tfPrompt = document.getElementById('tf-prompt');
+    const simLabel = document.getElementById('sim-label');
+    const simButton = document.getElementById('sim-button');
+    const simTextfield = document.getElementById('sim-textfield');
+    const simFeedback = document.getElementById('sim-feedback');
+
+    function updatePreview() {
+      simLabel.textContent = labelText.value;
+      simLabel.style.color = labelColor.value;
+      simButton.textContent = btnText.value;
+      simButton.disabled = btnDisabled.checked;
+      simTextfield.placeholder = tfPrompt.value;
+    }
+
+    labelText.addEventListener('input', updatePreview);
+    labelColor.addEventListener('change', updatePreview);
+    btnText.addEventListener('input', updatePreview);
+    btnDisabled.addEventListener('change', updatePreview);
+    tfPrompt.addEventListener('input', updatePreview);
+
+    simButton.addEventListener('click', () => {
+      simFeedback.textContent = '✅ ActionEvent disparado! O handler seria executado aqui.';
+      simFeedback.style.color = 'var(--good)';
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'Qual classe é a base de todos os componentes visuais no JavaFX?', opts: ['Control', 'Node', 'Stage'], ans: 1 },
+      { q: 'Qual componente exibe texto não editável?', opts: ['TextField', 'TextArea', 'Label'], ans: 2 },
+      { q: 'TextField.getText() retorna...', opts: ['void', 'String', 'int'], ans: 1 },
+      { q: 'Qual método define o texto de um Button?', opts: ['setText()', 'setLabel()', 'setCaption()'], ans: 0 },
+      { q: 'Para detectar clique em um Button, usamos...', opts: ['setOnAction()', 'addClickListener()', 'onClick()'], ans: 0 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        const correct = quizzes[qi].ans === oi;
+        fb.textContent = correct ? 'Correto! ✅' : 'Incorreto. Tente novamente.';
+        fb.className = 'feedback ' + (correct ? 'ok' : 'err');
+      });
+    });
+    document.querySelectorAll('.diagram-box').forEach(el => {
+      el.addEventListener('click', () => {
+        document.querySelectorAll('.diagram-box').forEach(x => x.classList.remove('selected'));
+        el.classList.add('selected');
+        const part = el.dataset.part;
+        document.querySelectorAll('#code-box .code-line').forEach(line => {
+          line.classList.toggle('hl', line.dataset.part === part);
+        });
+      });
+    });
+  </script>
+</body>
+
+</html>

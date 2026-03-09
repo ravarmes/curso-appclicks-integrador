@@ -1,0 +1,487 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 2.3 — ResultSet e Mapeamento</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --jdbc: #336791;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #e0f2fe;
+      border-color: var(--jdbc);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #e0f2fe;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0;
+      font-size: 0.9rem;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--border);
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f1f5f9;
+    }
+
+    /* ResultSet visual */
+    .resultset-visual {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .rs-cursor {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 12px 0;
+    }
+
+    .rs-pointer {
+      font-size: 1.5rem;
+      color: var(--jdbc);
+      animation: bounce 0.5s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from {
+        transform: translateX(0);
+      }
+
+      to {
+        transform: translateX(5px);
+      }
+    }
+
+    .rs-row {
+      display: flex;
+      gap: 8px;
+      padding: 8px;
+      border-radius: 6px;
+      margin: 4px 0;
+    }
+
+    .rs-row.header {
+      background: #e0f2fe;
+      font-weight: 600;
+    }
+
+    .rs-row.current {
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+    }
+
+    .rs-row.before {
+      background: #f1f5f9;
+      opacity: 0.5;
+    }
+
+    .rs-cell {
+      flex: 1;
+      padding: 4px 8px;
+      background: white;
+      border-radius: 4px;
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 2.3 — ResultSet e Mapeamento de Dados</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="conceito">Conceito</button>
+      <button class="tab" data-key="metodos">Métodos</button>
+      <button class="tab" data-key="simulador">Simulador</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Conceito -->
+    <section class="panel active" data-key="conceito">
+      <div class="box">
+        <h3>O que é ResultSet?</h3>
+        <p>O <strong>ResultSet</strong> é um objeto que representa o resultado de uma consulta SELECT.
+          Funciona como um cursor que aponta para uma linha por vez.</p>
+
+        <div class="resultset-visual">
+          <div class="rs-row header">
+            <div class="rs-cell">id</div>
+            <div class="rs-cell">nome</div>
+            <div class="rs-cell">email</div>
+          </div>
+          <div class="rs-row before">
+            <div class="rs-cell">—</div>
+            <div class="rs-cell">(antes da primeira linha)</div>
+            <div class="rs-cell">—</div>
+          </div>
+          <div class="rs-row">
+            <div class="rs-cell">1</div>
+            <div class="rs-cell">Ana</div>
+            <div class="rs-cell">ana@email.com</div>
+          </div>
+          <div class="rs-row current">
+            <div class="rs-pointer">→</div>
+            <div class="rs-cell">2</div>
+            <div class="rs-cell">Bruno</div>
+            <div class="rs-cell">bruno@email.com</div>
+          </div>
+          <div class="rs-row">
+            <div class="rs-cell">3</div>
+            <div class="rs-cell">Carla</div>
+            <div class="rs-cell">carla@email.com</div>
+          </div>
+        </div>
+
+        <pre><span class="ty">ResultSet</span> rs = ps.<span class="fn">executeQuery</span>();
+<span class="kw">while</span> (rs.<span class="fn">next</span>()) {  <span class="cm">// move cursor para próxima linha</span>
+    <span class="kw">int</span> id = rs.<span class="fn">getInt</span>(<span class="str">"id"</span>);
+    <span class="ty">String</span> nome = rs.<span class="fn">getString</span>(<span class="str">"nome"</span>);
+    <span class="ty">String</span> email = rs.<span class="fn">getString</span>(<span class="str">"email"</span>);
+}</pre>
+      </div>
+    </section>
+
+    <!-- Métodos -->
+    <section class="panel" data-key="metodos">
+      <div class="box">
+        <h3>Métodos do ResultSet</h3>
+
+        <h4>Navegação:</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Método</th>
+              <th>Descrição</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>next()</code></td>
+              <td>Move para próxima linha, retorna false se não houver</td>
+            </tr>
+            <tr>
+              <td><code>previous()</code></td>
+              <td>Move para linha anterior (requer SCROLL)</td>
+            </tr>
+            <tr>
+              <td><code>first()</code></td>
+              <td>Move para primeira linha</td>
+            </tr>
+            <tr>
+              <td><code>last()</code></td>
+              <td>Move para última linha</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h4>Obter valores:</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Método</th>
+              <th>Tipo Java</th>
+              <th>Tipo SQL</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>getString("col")</code></td>
+              <td>String</td>
+              <td>VARCHAR, CHAR, TEXT</td>
+            </tr>
+            <tr>
+              <td><code>getInt("col")</code></td>
+              <td>int</td>
+              <td>INTEGER, SMALLINT</td>
+            </tr>
+            <tr>
+              <td><code>getDouble("col")</code></td>
+              <td>double</td>
+              <td>DECIMAL, NUMERIC, FLOAT</td>
+            </tr>
+            <tr>
+              <td><code>getBoolean("col")</code></td>
+              <td>boolean</td>
+              <td>BOOLEAN</td>
+            </tr>
+            <tr>
+              <td><code>getDate("col")</code></td>
+              <td>java.sql.Date</td>
+              <td>DATE</td>
+            </tr>
+            <tr>
+              <td><code>getTimestamp("col")</code></td>
+              <td>Timestamp</td>
+              <td>TIMESTAMP</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Simulador -->
+    <section class="panel" data-key="simulador">
+      <div class="box">
+        <h3>Navegador de ResultSet</h3>
+        <p class="note">Simule a navegação pelo ResultSet:</p>
+
+        <div class="resultset-visual" id="rs-visual"></div>
+
+        <div class="nav-buttons">
+          <button class="btn" id="rs-first">⏮ first()</button>
+          <button class="btn" id="rs-prev">◀ previous()</button>
+          <button class="btn" id="rs-next">next() ▶</button>
+          <button class="btn" id="rs-last">last() ⏭</button>
+        </div>
+
+        <div class="grid" style="margin-top:16px;">
+          <div>
+            <h4>Valores da Linha Atual:</h4>
+            <pre id="rs-values"><span class="cm">// Cursor antes da primeira linha</span>
+<span class="cm">// Chame next() para começar</span></pre>
+          </div>
+          <div>
+            <h4>Mapeamento para Objeto:</h4>
+            <pre id="rs-mapping"><span class="ty">Aluno</span> aluno = <span class="kw">new</span> <span class="ty">Aluno</span>();
+<span class="cm">// Aguardando dados...</span></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — ResultSet</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Simulador
+    const data = [
+      { id: 1, nome: 'Ana Silva', email: 'ana@email.com' },
+      { id: 2, nome: 'Bruno Costa', email: 'bruno@email.com' },
+      { id: 3, nome: 'Carla Lima', email: 'carla@email.com' },
+      { id: 4, nome: 'Diego Reis', email: 'diego@email.com' }
+    ];
+
+    let cursor = -1; // -1 = before first
+
+    function renderRS() {
+      let html = `<div class="rs-row header">
+                <div class="rs-cell">id</div>
+                <div class="rs-cell">nome</div>
+                <div class="rs-cell">email</div>
+            </div>`;
+
+      if (cursor === -1) {
+        html += `<div class="rs-row current"><div class="rs-pointer">→</div>
+                    <div class="rs-cell" colspan="3">(cursor antes da primeira linha)</div></div>`;
+      }
+
+      data.forEach((row, i) => {
+        const isCurrent = i === cursor;
+        html += `<div class="rs-row ${isCurrent ? 'current' : ''}">
+                    ${isCurrent ? '<div class="rs-pointer">→</div>' : ''}
+                    <div class="rs-cell">${row.id}</div>
+                    <div class="rs-cell">${row.nome}</div>
+                    <div class="rs-cell">${row.email}</div>
+                </div>`;
+      });
+
+      document.getElementById('rs-visual').innerHTML = html;
+
+      if (cursor >= 0 && cursor < data.length) {
+        const row = data[cursor];
+        document.getElementById('rs-values').innerHTML =
+          `rs.<span class="fn">getInt</span>(<span class="str">"id"</span>)      → <span class="str">${row.id}</span>
+rs.<span class="fn">getString</span>(<span class="str">"nome"</span>)  → <span class="str">"${row.nome}"</span>
+rs.<span class="fn">getString</span>(<span class="str">"email"</span>) → <span class="str">"${row.email}"</span>`;
+        document.getElementById('rs-mapping').innerHTML =
+          `<span class="ty">Aluno</span> aluno = <span class="kw">new</span> <span class="ty">Aluno</span>();
+aluno.<span class="fn">setId</span>(rs.<span class="fn">getInt</span>(<span class="str">"id"</span>));
+aluno.<span class="fn">setNome</span>(rs.<span class="fn">getString</span>(<span class="str">"nome"</span>));
+aluno.<span class="fn">setEmail</span>(rs.<span class="fn">getString</span>(<span class="str">"email"</span>));
+<span class="cm">// aluno = {id: ${row.id}, nome: "${row.nome}"}</span>`;
+      } else {
+        document.getElementById('rs-values').innerHTML = `<span class="cm">// Cursor fora dos dados</span>`;
+        document.getElementById('rs-mapping').innerHTML = `<span class="cm">// Aguardando next()...</span>`;
+      }
+    }
+
+    document.getElementById('rs-next').addEventListener('click', () => { if (cursor < data.length - 1) cursor++; renderRS(); });
+    document.getElementById('rs-prev').addEventListener('click', () => { if (cursor > 0) cursor--; renderRS(); });
+    document.getElementById('rs-first').addEventListener('click', () => { cursor = 0; renderRS(); });
+    document.getElementById('rs-last').addEventListener('click', () => { cursor = data.length - 1; renderRS(); });
+
+    renderRS();
+
+    // Quiz
+    const quizzes = [
+      { q: 'Onde está o cursor do ResultSet inicialmente?', opts: ['Na primeira linha', 'Antes da primeira linha', 'Na última linha'], ans: 1 },
+      { q: 'Qual método move para a próxima linha?', opts: ['forward()', 'next()', 'moveNext()'], ans: 1 },
+      { q: 'getString() retorna null quando...', opts: ['Coluna não existe', 'Valor é NULL no BD', 'Cursor está fora'], ans: 1 },
+      { q: 'Para obter um inteiro, usamos...', opts: ['getInt()', 'getInteger()', 'readInt()'], ans: 0 },
+      { q: 'next() retorna false quando...', opts: ['Erro ocorre', 'Não há mais linhas', 'Cursor está no início'], ans: 1 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+        fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>

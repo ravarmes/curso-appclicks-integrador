@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Práticas 3.3 — Padrão Factory</title>
+  <style>
+    :root {
+      --bg: #f6f8fb;
+      --surface: #fff;
+      --border: #dde2eb;
+      --text: #1f2937;
+      --muted: #6b7280;
+      --good: #16a34a;
+      --pattern: #7c3aed;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, sans-serif;
+      color: var(--text);
+      background: var(--bg);
+    }
+
+    main {
+      padding: 16px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 0 0 10px;
+      font-size: 1.2rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #ede9fe;
+      border-color: var(--pattern);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      background: var(--surface);
+      margin: 10px 0;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .note {
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      border-radius: 10px;
+      padding: 8px 14px;
+      cursor: pointer;
+      margin: 4px;
+    }
+
+    .btn:hover {
+      background: #ede9fe;
+    }
+
+    .feedback {
+      margin-top: 10px;
+      font-weight: 600;
+    }
+
+    .feedback.ok {
+      color: var(--good);
+    }
+
+    .feedback.err {
+      color: #dc2626;
+    }
+
+    pre {
+      background: #1e293b;
+      color: #e2e8f0;
+      padding: 12px;
+      border-radius: 10px;
+      overflow-x: auto;
+      font-size: 0.85rem;
+    }
+
+    .kw {
+      color: #93c5fd;
+    }
+
+    .ty {
+      color: #fdba74;
+    }
+
+    .str {
+      color: #86efac;
+    }
+
+    .cm {
+      color: #94a3b8;
+    }
+
+    /* Factory Diagram */
+    .factory-diagram {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+    }
+
+    .factory-row {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+
+    .factory-box {
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 20px;
+      text-align: center;
+    }
+
+    .factory-box.factory {
+      border-color: var(--pattern);
+      background: #ede9fe;
+    }
+
+    .factory-box.product {
+      border-color: #10b981;
+      background: #d1fae5;
+    }
+
+    .factory-arrow {
+      font-size: 1.5rem;
+      color: var(--muted);
+    }
+
+    /* Simulador */
+    .sim-result {
+      background: #f8fafc;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 12px;
+      min-height: 100px;
+    }
+  </style>
+</head>
+
+<body>
+  <main>
+    <h2>Práticas 3.3 — Padrão Factory</h2>
+
+    <div class="tabs">
+      <button class="tab active" data-key="conceito">Conceito</button>
+      <button class="tab" data-key="codigo">Código</button>
+      <button class="tab" data-key="simulador">Simulador</button>
+      <button class="tab" data-key="quiz">Quiz</button>
+    </div>
+
+    <!-- Conceito -->
+    <section class="panel active" data-key="conceito">
+      <div class="box">
+        <h3>O que é o Padrão Factory?</h3>
+        <p>O <strong>Factory</strong> é um padrão de criação que centraliza a instanciação de objetos,
+          desacoplando o código cliente das classes concretas.</p>
+
+        <div class="factory-diagram">
+          <div class="factory-box">
+            <strong>🎮 Controller</strong>
+            <p class="note">Pede ao Factory</p>
+          </div>
+          <div class="factory-arrow">↓</div>
+          <div class="factory-box factory">
+            <strong>🏭 DAOFactory</strong>
+            <p class="note">Decide qual criar</p>
+          </div>
+          <div class="factory-arrow">↓</div>
+          <div class="factory-row">
+            <div class="factory-box product">AlunoDAOJDBC</div>
+            <div class="factory-box product">AlunoDAOJPA</div>
+            <div class="factory-box product">AlunoDAOMock</div>
+          </div>
+        </div>
+
+        <h4>Vantagens:</h4>
+        <ul>
+          <li>✅ <strong>Desacoplamento</strong> — Cliente não conhece implementações</li>
+          <li>✅ <strong>Centralização</strong> — Mudança de implementação em um só lugar</li>
+          <li>✅ <strong>Configuração</strong> — Pode ler de arquivo qual implementação usar</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Código -->
+    <section class="panel" data-key="codigo">
+      <div class="box">
+        <h3>Exemplo de Factory</h3>
+
+        <pre><span class="kw">public class</span> <span class="ty">DAOFactory</span> {
+    
+    <span class="kw">private static</span> <span class="ty">Connection</span> conn;
+    
+    <span class="cm">// Singleton da conexão</span>
+    <span class="kw">public static</span> <span class="ty">Connection</span> <span class="fn">getConnection</span>() {
+        <span class="kw">if</span> (conn == <span class="kw">null</span>) {
+            conn = <span class="ty">DriverManager</span>.<span class="fn">getConnection</span>(URL, USER, PASS);
+        }
+        <span class="kw">return</span> conn;
+    }
+    
+    <span class="cm">// Factory method para AlunoDAO</span>
+    <span class="kw">public static</span> <span class="ty">AlunoDAO</span> <span class="fn">createAlunoDAO</span>() {
+        <span class="kw">return new</span> <span class="ty">AlunoDAOJDBC</span>(<span class="fn">getConnection</span>());
+    }
+    
+    <span class="cm">// Factory method para LivroDAO</span>
+    <span class="kw">public static</span> <span class="ty">LivroDAO</span> <span class="fn">createLivroDAO</span>() {
+        <span class="kw">return new</span> <span class="ty">LivroDAOJDBC</span>(<span class="fn">getConnection</span>());
+    }
+}</pre>
+
+        <h4>Uso no Controller:</h4>
+        <pre><span class="kw">public class</span> <span class="ty">AlunoController</span> {
+    
+    <span class="cm">// NÃO faz: new AlunoDAOJDBC(...)</span>
+    <span class="cm">// USA o Factory!</span>
+    <span class="kw">private</span> <span class="ty">AlunoDAO</span> dao = <span class="ty">DAOFactory</span>.<span class="fn">createAlunoDAO</span>();
+    
+    <span class="kw">public void</span> <span class="fn">salvar</span>(<span class="ty">Aluno</span> aluno) {
+        dao.<span class="fn">inserir</span>(aluno);
+    }
+}</pre>
+      </div>
+    </section>
+
+    <!-- Simulador -->
+    <section class="panel" data-key="simulador">
+      <div class="box">
+        <h3>Simulador: Trocando Implementação</h3>
+        <p class="note">Veja como o Factory permite trocar implementações facilmente:</p>
+
+        <div style="margin:12px 0;">
+          <strong>Ambiente:</strong>
+          <button class="btn" data-env="jdbc">Produção (JDBC)</button>
+          <button class="btn" data-env="mock">Testes (Mock)</button>
+          <button class="btn" data-env="jpa">Alternativo (JPA)</button>
+        </div>
+
+        <div class="sim-result" id="sim-result">
+          <p class="note">Selecione um ambiente para ver o código do Factory...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quiz -->
+    <section class="panel" data-key="quiz">
+      <div class="box">
+        <h3>Quiz — Padrão Factory</h3>
+        <div id="quiz-items"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // Tabs
+    document.querySelector('.tabs').addEventListener('click', e => {
+      const btn = e.target.closest('.tab'); if (!btn) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t === btn));
+      document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.dataset.key === btn.dataset.key));
+    });
+
+    // Simulador
+    const envCodes = {
+      jdbc: `<h4>🏭 DAOFactory — Produção</h4>
+<pre>public static AlunoDAO createAlunoDAO() {
+    return new <span style="color:#86efac">AlunoDAOJDBC</span>(getConnection());
+}</pre>
+<p>✅ Conecta ao PostgreSQL real</p>`,
+      mock: `<h4>🏭 DAOFactory — Testes</h4>
+<pre>public static AlunoDAO createAlunoDAO() {
+    return new <span style="color:#fde68a">AlunoDAOMock</span>();
+}</pre>
+<p>✅ Usa lista em memória, sem banco real</p>`,
+      jpa: `<h4>🏭 DAOFactory — JPA</h4>
+<pre>public static AlunoDAO createAlunoDAO() {
+    return new <span style="color:#f9a8d4">AlunoDAOJPA</span>(entityManager);
+}</pre>
+<p>✅ Usa Hibernate/JPA para persistência</p>`
+    };
+
+    document.querySelectorAll('[data-env]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.getElementById('sim-result').innerHTML = envCodes[btn.dataset.env];
+      });
+    });
+
+    // Quiz
+    const quizzes = [
+      { q: 'Factory é um padrão de...', opts: ['Estrutura', 'Comportamento', 'Criação'], ans: 2 },
+      { q: 'O principal objetivo do Factory é...', opts: ['Melhorar performance', 'Desacoplar criação de objetos', 'Criar interfaces'], ans: 1 },
+      { q: 'DAOFactory.createAlunoDAO() retorna...', opts: ['void', 'AlunoDAO (interface)', 'Connection'], ans: 1 },
+      { q: 'Para trocar JDBC por JPA, alteramos...', opts: ['Todos os Controllers', 'Apenas o Factory', 'O banco de dados'], ans: 1 },
+      { q: 'O Controller deve usar...', opts: ['new AlunoDAOJDBC()', 'DAOFactory.createAlunoDAO()', 'AlunoDAO.getInstance()'], ans: 1 }
+    ];
+
+    document.getElementById('quiz-items').innerHTML = quizzes.map((q, i) => `
+            <div class="box"><p><strong>${i + 1}.</strong> ${q.q}</p>
+            ${q.opts.map((o, j) => `<button class="btn" data-q="${i}" data-o="${j}">${o}</button>`).join('')}
+            <div class="feedback" id="qfb-${i}"></div></div>
+        `).join('');
+
+    document.querySelectorAll('#quiz-items .btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const qi = parseInt(btn.dataset.q), oi = parseInt(btn.dataset.o);
+        const fb = document.getElementById(`qfb-${qi}`);
+        fb.textContent = quizzes[qi].ans === oi ? 'Correto! ✅' : 'Incorreto.';
+        fb.className = 'feedback ' + (quizzes[qi].ans === oi ? 'ok' : 'err');
+      });
+    });
+  </script>
+</body>
+
+</html>
